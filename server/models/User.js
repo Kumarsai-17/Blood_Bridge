@@ -109,11 +109,11 @@ const userSchema = new mongoose.Schema(
     location: {
       lat: {
         type: Number,
-        default: null
+        default: undefined
       },
       lng: {
         type: Number,
-        default: null
+        default: undefined
       }
     },
 

@@ -34,8 +34,8 @@ connectDB().then(async () => {
       role: "super_admin",
       isApproved: true,
       emailVerified: true,
-      mustChangePassword: true,
-      location: { lat: null, lng: null }
+      mustChangePassword: true
+      // Don't set location for super_admin - it will default to null
     });
 
     console.log("✅ SUPER ADMIN CREATED");

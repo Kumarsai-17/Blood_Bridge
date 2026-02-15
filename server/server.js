@@ -50,9 +50,15 @@ const app = express();
 
 
 /* ✅ CORS CONFIG (FIXES YOUR ERROR) */
+const allowedOrigins = [
+  "http://localhost:5173", 
+  "http://localhost:5174",
+  process.env.FRONTEND_URL
+].filter(Boolean); // Remove undefined values
+
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:5174"],
+    origin: allowedOrigins,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true

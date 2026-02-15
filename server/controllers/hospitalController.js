@@ -99,7 +99,7 @@ A nearby hospital needs your help!
 
 ${notes ? `📝 Additional Notes: ${notes}` : ''}
 
-🔗 Respond to this request: http://localhost:5173/donor/requests
+🔗 Respond to this request: ${process.env.FRONTEND_URL || 'http://localhost:5173'}/donor/requests
 
 ⏰ Time is critical - please respond as soon as possible if you're available to donate.
 

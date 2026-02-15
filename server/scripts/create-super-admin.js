@@ -53,7 +53,7 @@ const createSuperAdmin = async () => {
     console.log(`   Password: ${superAdminData.password}`);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('\n⚠️  IMPORTANT: Change this password after first login!');
-    console.log('\n🔗 Login at: http://localhost:5173/login');
+    console.log(`\n🔗 Login at: ${process.env.FRONTEND_URL || 'http://localhost:5173'}/login`);
 
     process.exit(0);
   } catch (error) {

@@ -84,7 +84,7 @@ State: ${state}
 City: ${city}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🔗 Login here: http://localhost:5173/login
+🔗 Login here: ${process.env.FRONTEND_URL || 'http://localhost:5173'}/login
 
 ⚠️ IMPORTANT: Please keep your credentials secure and do not share them with anyone.
 
@@ -379,7 +379,7 @@ Email: ${user.email}
 Temporary Password: ${tempPassword}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🔗 Login here: http://localhost:5173/login
+🔗 Login here: ${process.env.FRONTEND_URL || 'http://localhost:5173'}/login
 
 ⚠️ IMPORTANT: For security reasons, you will be required to change your password on first login.
 
@@ -406,7 +406,7 @@ Email: ${user.email}
 Password: Use the password you provided during registration
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🔗 Login here: http://localhost:5173/login
+🔗 Login here: ${process.env.FRONTEND_URL || 'http://localhost:5173'}/login
 
 📍 Your registered location: ${user.location.lat.toFixed(4)}, ${user.location.lng.toFixed(4)}
 
@@ -893,7 +893,7 @@ Email: ${user.email}
 New Temporary Password: ${tempPassword}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🔗 Login here: http://localhost:5173/login
+🔗 Login here: ${process.env.FRONTEND_URL || 'http://localhost:5173'}/login
 
 ⚠️ IMPORTANT: For security reasons, you will be required to change your password on first login.
 

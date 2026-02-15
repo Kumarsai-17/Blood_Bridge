@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "buildCommand": "cd client/bloodbridge-client && npm install && npm run build",
+  "outputDirectory": "client/bloodbridge-client/dist",
+  "installCommand": "npm install --prefix client/bloodbridge-client",
+  "devCommand": "cd client/bloodbridge-client && npm run dev",
+  "framework": null,
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

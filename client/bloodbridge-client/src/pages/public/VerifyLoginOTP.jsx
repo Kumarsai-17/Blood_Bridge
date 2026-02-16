@@ -61,7 +61,32 @@ const VerifyLoginOTP = () => {
     setError('')
     
     try {
-      const result = await verifyLoginOTP(email, otpString)
+      let userLocation = null;
+      
+      // Get current location for donors
+      if (role === 'donor') {
+        try {
+          const position = await new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+              enableHighAccuracy: true,
+              timeout: 10000,
+              maximumAge: 0
+            });
+          });
+          
+          userLocation = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+          
+          console.log('📍 Got donor location:', userLocation);
+        } catch (geoError) {
+          console.warn('⚠️ Could not get location:', geoError.message);
+          // Continue without location - backend will use existing location
+        }
+      }
+      
+      const result = await verifyLoginOTP(email, otpString, userLocation)
       
       if (result.success) {
         // Navigate based on role

@@ -305,9 +305,9 @@ BloodBridge Team`
  */
 exports.verifyLoginOTP = async (req, res) => {
   try {
-    const { email, otp } = req.body;
+    const { email, otp, location } = req.body;
 
-    console.log('🔍 VERIFY LOGIN OTP REQUEST:', { email, otp });
+    console.log('🔍 VERIFY LOGIN OTP REQUEST:', { email, otp, hasLocation: !!location });
 
     if (!email || !otp) {
       return res.status(400).json({
@@ -344,6 +344,16 @@ exports.verifyLoginOTP = async (req, res) => {
     // Clear OTP after successful verification
     user.otp = null;
     user.otpExpiry = null;
+
+    // Update donor location on every login
+    if (user.role === 'donor' && location && location.lat && location.lng) {
+      console.log('📍 Updating donor location:', location);
+      user.location = {
+        lat: location.lat,
+        lng: location.lng
+      };
+    }
+
     await user.save();
 
     // Generate JWT token

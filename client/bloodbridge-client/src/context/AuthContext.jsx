@@ -81,9 +81,16 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
-  const verifyLoginOTP = async (email, otp) => {
+  const verifyLoginOTP = async (email, otp, location = null) => {
     try {
-      const response = await api.post('/auth/verify-login-otp', { email, otp })
+      const payload = { email, otp };
+      
+      // Add location if provided (for donors)
+      if (location) {
+        payload.location = location;
+      }
+      
+      const response = await api.post('/auth/verify-login-otp', payload)
       const { token, role, mustChangePassword } = response.data
       
       localStorageService.setToken(token)

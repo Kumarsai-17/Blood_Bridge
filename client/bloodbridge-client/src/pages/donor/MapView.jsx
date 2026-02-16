@@ -15,20 +15,38 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 })
 
-// Custom marker icons
-const createCustomIcon = (color, html) => {
+// Custom marker icons with better design
+const createCustomIcon = (color, iconSvg, size = 40) => {
   return L.divIcon({
     className: 'custom-marker',
-    html: `<div style="background-color: ${color}; width: 30px; height: 30px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">${html}</div>`,
-    iconSize: [30, 30],
-    iconAnchor: [15, 15],
-    popupAnchor: [0, -15]
+    html: `
+      <div style="
+        background: linear-gradient(135deg, ${color} 0%, ${color}dd 100%);
+        width: ${size}px;
+        height: ${size}px;
+        border-radius: 50% 50% 50% 0;
+        border: 3px solid white;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transform: rotate(-45deg);
+        position: relative;
+      ">
+        <div style="transform: rotate(45deg); font-size: ${size * 0.5}px;">
+          ${iconSvg}
+        </div>
+      </div>
+    `,
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size],
+    popupAnchor: [0, -size]
   })
 }
 
-const userIcon = createCustomIcon('#3B82F6', '📍')
-const hospitalIcon = createCustomIcon('#6366F1', '🏥')
-const bloodBankIcon = createCustomIcon('#EF4444', '🩸')
+const userIcon = createCustomIcon('#3B82F6', '📍', 40)
+const hospitalIcon = createCustomIcon('#6366F1', '🏥', 45)
+const bloodBankIcon = createCustomIcon('#EF4444', '💉', 45)
 
 // Component to handle map updates
 const MapController = ({ center, zoom }) => {
@@ -180,45 +198,46 @@ const MapView = () => {
   }
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="h-screen flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4 flex-shrink-0">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">All Locations</h1>
-            <p className="text-sm text-gray-600 mt-1">Find all hospitals and blood banks</p>
+      <div className="bg-white border-b border-gray-200 px-3 sm:px-6 py-3 sm:py-4 flex-shrink-0">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="min-w-0">
+            <h1 className="text-lg sm:text-2xl font-bold text-gray-900 truncate">All Locations</h1>
+            <p className="text-xs sm:text-sm text-gray-600 mt-1 truncate">Find hospitals and blood banks</p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <select
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1 sm:flex-none px-3 py-2 border border-gray-300 rounded-lg text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="all">All Locations</option>
-              <option value="hospitals">Hospitals Only</option>
-              <option value="bloodbanks">Blood Banks Only</option>
+              <option value="all">All</option>
+              <option value="hospitals">Hospitals</option>
+              <option value="bloodbanks">Blood Banks</option>
             </select>
             <button
               onClick={fetchNearbyLocations}
               disabled={loading}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition-all flex items-center gap-2"
+              className="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg text-xs sm:text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition-all flex items-center gap-1 sm:gap-2 whitespace-nowrap"
             >
-              <Navigation className="w-4 h-4" />
-              Refresh
+              <Navigation className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">Refresh</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* Main Content - Split Layout */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Left Side - Map (Sticky) */}
-        <div className="w-1/2 relative">
+      {/* Main Content - Mobile: Stacked, Desktop: Side by Side */}
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+        {/* Map Section - Top on mobile (50% height), Left on desktop */}
+        <div className="w-full md:w-1/2 h-1/2 md:h-full relative flex-shrink-0">
           <MapContainer
             center={mapCenter}
             zoom={mapZoom}
             style={{ height: '100%', width: '100%' }}
             scrollWheelZoom={true}
+            className="z-0"
           >
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -237,15 +256,16 @@ const MapView = () => {
                   </Popup>
                 </Marker>
                 
-                {/* 30km Radius Circle */}
+                {/* 30km Radius Circle - Mobile Only */}
                 <Circle
                   center={[userLocation.lat, userLocation.lng]}
                   radius={30000}
                   pathOptions={{
                     color: '#3B82F6',
                     fillColor: '#3B82F6',
-                    fillOpacity: 0.1,
-                    weight: 2
+                    fillOpacity: 0.15,
+                    weight: 2,
+                    dashArray: '5, 10'
                   }}
                 />
               </>
@@ -286,31 +306,31 @@ const MapView = () => {
             })}
           </MapContainer>
           
-          {/* Map Legend */}
-          <div className="absolute bottom-6 left-6 bg-white rounded-lg shadow-lg p-4 space-y-2 z-[1000]">
-            <div className="flex items-center gap-3">
-              <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
-              <span className="text-xs font-medium text-gray-700">Your Location</span>
+          {/* Map Legend - Mobile optimized */}
+          <div className="absolute bottom-3 left-3 md:bottom-6 md:left-6 bg-white/95 backdrop-blur-sm rounded-xl shadow-lg p-2 sm:p-4 space-y-1 sm:space-y-2 z-[1000] text-xs sm:text-sm border border-gray-200">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 sm:w-4 sm:h-4 bg-blue-600 rounded-full flex-shrink-0 shadow-sm"></div>
+              <span className="font-semibold text-gray-800 truncate">You</span>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="w-3 h-3 bg-indigo-600 rounded-full"></div>
-              <span className="text-xs font-medium text-gray-700">Hospitals ({hospitals.length})</span>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 sm:w-4 sm:h-4 bg-indigo-600 rounded-full flex-shrink-0 shadow-sm"></div>
+              <span className="font-semibold text-gray-800 truncate">Hospitals ({hospitals.length})</span>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="w-3 h-3 bg-red-600 rounded-full"></div>
-              <span className="text-xs font-medium text-gray-700">Blood Banks ({bloodBanks.length})</span>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 sm:w-4 sm:h-4 bg-red-600 rounded-full flex-shrink-0 shadow-sm"></div>
+              <span className="font-semibold text-gray-800 truncate">Blood Banks ({bloodBanks.length})</span>
             </div>
           </div>
         </div>
 
-        {/* Right Side - Location List (Scrollable) */}
-        <div className="w-1/2 overflow-y-auto bg-gray-50">
-          <div className="p-6 space-y-4">
+        {/* Right Side - Location List (Scrollable) - Bottom on mobile, Right on desktop */}
+        <div className="w-full md:w-1/2 flex-1 overflow-y-auto bg-gray-50">
+          <div className="p-3 sm:p-6 space-y-3 sm:space-y-4">
             {filteredLocations().length === 0 ? (
-              <div className="text-center py-12">
-                <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600 font-medium">No locations found</p>
-                <p className="text-sm text-gray-500 mt-2">Try adjusting your filters</p>
+              <div className="text-center py-8 sm:py-12">
+                <MapPin className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-3 sm:mb-4" />
+                <p className="text-gray-600 font-medium text-sm sm:text-base">No locations found</p>
+                <p className="text-xs sm:text-sm text-gray-500 mt-2">Try adjusting your filters</p>
               </div>
             ) : (
               filteredLocations().map((location, index) => {

@@ -152,26 +152,26 @@ const DonorDashboard = () => {
 
   return (
     <div className="space-y-8 pb-12 animate-fade-in">
-      {/* Inspirational Quotes Banner */}
-      <div className="bg-gradient-to-r from-red-600 via-rose-600 to-pink-600 rounded-2xl shadow-2xl overflow-hidden relative">
+      {/* Inspirational Quotes Banner - Mobile Optimized */}
+      <div className="bg-gradient-to-r from-red-600 via-rose-600 to-pink-600 rounded-xl sm:rounded-2xl shadow-xl sm:shadow-2xl overflow-hidden relative">
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-br from-black/20 to-transparent"></div>
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full blur-2xl -ml-24 -mb-24"></div>
+          <div className="absolute top-0 right-0 w-32 h-32 sm:w-64 sm:h-64 bg-white/10 rounded-full blur-2xl sm:blur-3xl -mr-16 sm:-mr-32 -mt-16 sm:-mt-32"></div>
+          <div className="absolute bottom-0 left-0 w-24 h-24 sm:w-48 sm:h-48 bg-white/10 rounded-full blur-xl sm:blur-2xl -ml-12 sm:-ml-24 -mb-12 sm:-mb-24"></div>
         </div>
-        <div className="relative z-10 px-8 py-8">
-          <div className="flex items-center gap-6">
+        <div className="relative z-10 px-4 py-4 sm:px-8 sm:py-8">
+          <div className="flex items-center gap-3 sm:gap-6">
             <div className="flex-shrink-0">
-              <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center border-2 border-white/30 shadow-lg">
-                <Heart className="w-8 h-8 text-white fill-white" />
+              <div className="w-10 h-10 sm:w-16 sm:h-16 bg-white/20 backdrop-blur-md rounded-xl sm:rounded-2xl flex items-center justify-center border-2 border-white/30 shadow-lg">
+                <Heart className="w-5 h-5 sm:w-8 sm:h-8 text-white fill-white" />
               </div>
             </div>
-            <div className="flex-1 min-h-[70px] flex items-center">
-              <p className="text-white text-xl font-bold leading-relaxed transition-all duration-700 ease-in-out drop-shadow-lg">
+            <div className="flex-1 min-h-[50px] sm:min-h-[70px] flex items-center">
+              <p className="text-white text-sm sm:text-xl font-bold leading-snug sm:leading-relaxed transition-all duration-700 ease-in-out drop-shadow-lg">
                 {inspirationalQuotes[currentQuoteIndex]}
               </p>
             </div>
-            <div className="flex-shrink-0 flex gap-2">
+            <div className="hidden sm:flex flex-shrink-0 gap-2">
               {inspirationalQuotes.map((_, index) => (
                 <div
                   key={index}
@@ -214,7 +214,8 @@ const DonorDashboard = () => {
                 : `Your body is recovering from your last donation. You'll be eligible to donate again in ${stats.cooldownRemainingDays} days.`}
             </p>
           </div>
-          <Link to="/donor/map">
+          {/* View Map Button - Desktop Only */}
+          <Link to="/donor/map" className="hidden md:block">
             <Button variant="primary" size="lg" className="whitespace-nowrap">
               <MapPin className="w-5 h-5 mr-2" />
               View Map
@@ -277,12 +278,11 @@ const DonorDashboard = () => {
         </div>
       )}
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Quick Actions - Hidden on Mobile */}
+      <div className="hidden md:grid grid-cols-1 md:grid-cols-3 gap-6">
         {[
           { to: "/donor/map", icon: MapPin, title: "View Map", desc: "See blood requests near you on the map", color: "text-red-600", bg: "bg-red-50" },
-          { to: "/donor/history", icon: History, title: "Donation History", desc: "View your past donations and impact", color: "text-blue-600", bg: "bg-blue-50" },
-          { to: "/donor/profile", icon: User, title: "My Profile", desc: "Update your information and preferences", color: "text-gray-600", bg: "bg-gray-50" }
+          { to: "/donor/history", icon: History, title: "Donation History", desc: "View your past donations and impact", color: "text-blue-600", bg: "bg-blue-50" }
         ].map((action, i) => (
           <Link key={i} to={action.to} className="block group">
             <Card className="h-full hover:shadow-soft-lg transition-all">

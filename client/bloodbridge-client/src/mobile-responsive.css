@@ -1,0 +1,344 @@
+/* Mobile Responsive CSS - Perfect Fit for All Screens */
+
+/* Base Mobile Styles (0-640px) */
+@media (max-width: 640px) {
+  /* Prevent horizontal scroll */
+  body {
+    overflow-x: hidden;
+    width: 100%;
+  }
+
+  /* Container padding adjustments */
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  /* Text size adjustments */
+  h1 {
+    font-size: 1.75rem !important;
+    line-height: 2rem !important;
+  }
+
+  h2 {
+    font-size: 1.5rem !important;
+    line-height: 1.75rem !important;
+  }
+
+  h3 {
+    font-size: 1.25rem !important;
+    line-height: 1.5rem !important;
+  }
+
+  h4 {
+    font-size: 1.125rem !important;
+    line-height: 1.5rem !important;
+  }
+
+  p {
+    font-size: 0.875rem !important;
+    line-height: 1.25rem !important;
+  }
+
+  /* Button adjustments */
+  button {
+    font-size: 0.875rem !important;
+    padding: 0.625rem 1rem !important;
+  }
+
+  /* Card padding */
+  .card {
+    padding: 1rem !important;
+  }
+
+  /* Remove excessive margins */
+  .space-y-8 > * + * {
+    margin-top: 1.5rem !important;
+  }
+
+  .space-y-6 > * + * {
+    margin-top: 1rem !important;
+  }
+
+  /* Grid adjustments */
+  .grid {
+    gap: 1rem !important;
+  }
+
+  /* Fix overlapping headers */
+  header {
+    position: relative;
+    z-index: 50;
+  }
+
+  /* Navbar mobile fix */
+  nav {
+    padding: 0.75rem 1rem !important;
+  }
+
+  /* Hero section mobile */
+  .hero-section {
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
+  }
+
+  /* Stats cards mobile */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.75rem !important;
+  }
+
+  /* Dashboard cards mobile */
+  .dashboard-card {
+    padding: 1rem !important;
+    margin-bottom: 1rem !important;
+  }
+
+  /* Request cards mobile */
+  .request-card {
+    padding: 1rem !important;
+  }
+
+  .request-card h4 {
+    font-size: 1rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  /* Modal mobile */
+  .modal-content {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    margin: 1rem !important;
+  }
+
+  /* Table mobile - make scrollable */
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table {
+    min-width: 600px;
+  }
+
+  /* Form inputs mobile */
+  input,
+  select,
+  textarea {
+    font-size: 16px !important; /* Prevents zoom on iOS */
+  }
+
+  /* Footer mobile */
+  footer {
+    padding: 1.5rem 1rem !important;
+  }
+
+  footer .grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
+
+  /* Badge mobile */
+  .badge {
+    font-size: 0.75rem !important;
+    padding: 0.25rem 0.5rem !important;
+  }
+
+  /* Icon sizes mobile */
+  svg {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+  }
+
+  .icon-lg svg {
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+  }
+
+  /* Sidebar mobile - full width */
+  .sidebar {
+    width: 100% !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    height: 100vh !important;
+    z-index: 100 !important;
+  }
+
+  /* Map mobile */
+  .map-container {
+    height: 300px !important;
+  }
+
+  /* Notification cards mobile */
+  .notification-card {
+    padding: 0.75rem !important;
+  }
+
+  /* Blood type display mobile */
+  .blood-type-badge {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+    font-size: 1rem !important;
+  }
+
+  /* Distance badge mobile */
+  .distance-badge {
+    font-size: 0.75rem !important;
+  }
+
+  /* Action buttons mobile - stack vertically */
+  .action-buttons {
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+  }
+
+  .action-buttons button {
+    width: 100% !important;
+  }
+
+  /* Tabs mobile */
+  .tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tab-button {
+    white-space: nowrap;
+    font-size: 0.875rem !important;
+    padding: 0.5rem 1rem !important;
+  }
+
+  /* Dropdown mobile */
+  .dropdown-menu {
+    width: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+  }
+
+  /* Avatar mobile */
+  .avatar {
+    width: 2rem !important;
+    height: 2rem !important;
+  }
+
+  /* Breadcrumb mobile */
+  .breadcrumb {
+    font-size: 0.75rem !important;
+  }
+
+  /* Alert mobile */
+  .alert {
+    padding: 0.75rem !important;
+    font-size: 0.875rem !important;
+  }
+
+  /* Progress bar mobile */
+  .progress-bar {
+    height: 0.5rem !important;
+  }
+
+  /* Tooltip mobile - hide on touch devices */
+  .tooltip {
+    display: none !important;
+  }
+
+  /* Skeleton loader mobile */
+  .skeleton {
+    height: 3rem !important;
+  }
+
+  /* Pagination mobile */
+  .pagination {
+    gap: 0.25rem !important;
+  }
+
+  .pagination button {
+    padding: 0.5rem !important;
+    font-size: 0.875rem !important;
+  }
+}
+
+/* Small Mobile (0-375px) */
+@media (max-width: 375px) {
+  h1 {
+    font-size: 1.5rem !important;
+  }
+
+  h2 {
+    font-size: 1.25rem !important;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  button {
+    font-size: 0.8125rem !important;
+    padding: 0.5rem 0.75rem !important;
+  }
+}
+
+/* Tablet (641px - 1024px) */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+}
+
+/* Fix for iOS Safari */
+@supports (-webkit-touch-callout: none) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Fix for Android Chrome */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  select,
+  textarea,
+  input {
+    font-size: 16px !important;
+  }
+}
+
+/* Landscape mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+  .modal-content {
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+  }
+
+  .hero-section {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+  }
+}
+
+/* Prevent text selection on buttons */
+button {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Fix for safe area on notched devices */
+@supports (padding: max(0px)) {
+  body {
+    padding-left: max(0px, env(safe-area-inset-left));
+    padding-right: max(0px, env(safe-area-inset-right));
+  }
+}

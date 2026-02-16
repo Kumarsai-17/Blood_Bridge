@@ -308,7 +308,7 @@ exports.getDonorDashboard = async (req, res) => {
 exports.getDonorProfile = async (req, res) => {
   try {
     const donor = await User.findById(req.user.id)
-      .select("name email phone bloodGroup donationHistory lastDonationDate location state city");
+      .select("name email phone bloodGroup donationHistory lastDonationDate location state city isApproved createdAt");
 
     let eligibleToDonate = true;
     let cooldownRemainingDays = 0;
@@ -340,7 +340,9 @@ exports.getDonorProfile = async (req, res) => {
         lastDonationDate: donor.lastDonationDate,
         eligibleToDonate,
         cooldownRemainingDays,
-        donationHistory: donor.donationHistory
+        donationHistory: donor.donationHistory,
+        isApproved: donor.isApproved,
+        createdAt: donor.createdAt
       }
     });
   } catch (err) {

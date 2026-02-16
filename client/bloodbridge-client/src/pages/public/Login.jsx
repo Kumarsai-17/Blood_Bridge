@@ -215,14 +215,15 @@ const Login = () => {
       </CardContent>
       <CardFooter className="flex flex-col gap-4 bg-gray-50 border-t border-gray-100 p-6">
         <div className="text-center text-sm text-gray-600 font-medium mb-2">
-          Create an account as:
+          New to BloodBridge?
         </div>
-        <div className="grid grid-cols-3 gap-3 w-full">
-          <Link to="/register/donor" className="w-full">
-            <Button variant="outline" size="sm" className="w-full text-sm hover:bg-red-50 hover:text-red-600 hover:border-red-300 transition-all">
-              Donor
-            </Button>
-          </Link>
+        <Link to="/register/donor" className="w-full">
+          <Button variant="outline" size="md" className="w-full hover:bg-red-50 hover:text-red-600 hover:border-red-300 transition-all">
+            Register as Donor
+          </Button>
+        </Link>
+        {/* Hospital and Blood Bank registration hidden on mobile, visible on desktop */}
+        <div className="hidden md:grid md:grid-cols-2 gap-3 w-full">
           <Link to="/register/hospital" className="w-full">
             <Button variant="outline" size="sm" className="w-full text-sm hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 transition-all">
               Hospital

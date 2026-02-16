@@ -92,29 +92,29 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Join Section with Enhanced Cards - Only show when not authenticated */}
+      {/* Join Section with Enhanced Cards - Hidden on mobile, visible on desktop */}
       {!isAuthenticated && (
-        <div className="py-8 sm:py-12 bg-white relative overflow-hidden">
+        <div className="hidden md:block py-12 bg-white relative overflow-hidden">
           <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
           <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="mx-auto max-w-2xl text-center mb-8 sm:mb-12">
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4 px-4">Join Our Community</h2>
-              <p className="text-base sm:text-lg lg:text-xl text-gray-600 px-4">Choose your role and start making a difference today</p>
+            <div className="mx-auto max-w-2xl text-center mb-12">
+              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Join Our Community</h2>
+              <p className="text-lg lg:text-xl text-gray-600">Choose your role and start making a difference today</p>
             </div>
-            <div className="grid grid-cols-1 gap-6 md:gap-8 md:grid-cols-3">
-            {/* Donor Card - Always visible */}
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+            {/* Donor Card */}
             <Card className="group shadow-xl hover:shadow-2xl transition-all duration-500 border-2 border-red-100 hover:border-red-300 transform hover:-translate-y-2 bg-gradient-to-br from-white to-red-50">
-              <CardContent className="p-6 sm:p-8">
-                <div className="relative inline-flex p-4 sm:p-5 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl mb-4 sm:mb-6 shadow-lg group-hover:shadow-xl transition-shadow">
-                  <Heart className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
-                  <div className="absolute -top-2 -right-2 w-5 h-5 sm:w-6 sm:h-6 bg-green-500 rounded-full flex items-center justify-center">
-                    <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+              <CardContent className="p-8">
+                <div className="relative inline-flex p-5 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl mb-6 shadow-lg group-hover:shadow-xl transition-shadow">
+                  <Heart className="w-10 h-10 text-white" />
+                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                    <CheckCircle className="w-4 h-4 text-white" />
                   </div>
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 sm:mb-3">Blood Donor</h3>
-                <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6 leading-relaxed">Register as a donor and receive notifications when your blood type is needed in your area</p>
+                <h3 className="text-2xl font-bold text-gray-900 mb-3">Blood Donor</h3>
+                <p className="text-gray-600 mb-6 leading-relaxed">Register as a donor and receive notifications when your blood type is needed in your area</p>
                 <Link to="/register/donor">
-                  <Button variant="primary" className="w-full bg-gradient-to-r from-red-600 to-red-500 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all text-sm sm:text-base py-2.5 sm:py-3">
+                  <Button variant="primary" className="w-full bg-gradient-to-r from-red-600 to-red-500 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all">
                     <span className="flex items-center justify-center gap-2">
                       Register as Donor
                       <ArrowRight className="w-4 h-4" />
@@ -124,8 +124,8 @@ const Home = () => {
               </CardContent>
             </Card>
 
-            {/* Hospital Card - Hidden on mobile */}
-            <Card className="hidden md:block group shadow-xl hover:shadow-2xl transition-all duration-500 border-2 border-blue-100 hover:border-blue-300 transform hover:-translate-y-2 bg-gradient-to-br from-white to-blue-50">
+            {/* Hospital Card */}
+            <Card className="group shadow-xl hover:shadow-2xl transition-all duration-500 border-2 border-blue-100 hover:border-blue-300 transform hover:-translate-y-2 bg-gradient-to-br from-white to-blue-50">
               <CardContent className="p-8">
                 <div className="relative inline-flex p-5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl mb-6 shadow-lg group-hover:shadow-xl transition-shadow">
                   <Building2 className="w-10 h-10 text-white" />
@@ -144,8 +144,8 @@ const Home = () => {
               </CardContent>
             </Card>
 
-            {/* Blood Bank Card - Hidden on mobile */}
-            <Card className="hidden md:block group shadow-xl hover:shadow-2xl transition-all duration-500 border-2 border-green-100 hover:border-green-300 transform hover:-translate-y-2 bg-gradient-to-br from-white to-green-50">
+            {/* Blood Bank Card */}
+            <Card className="group shadow-xl hover:shadow-2xl transition-all duration-500 border-2 border-green-100 hover:border-green-300 transform hover:-translate-y-2 bg-gradient-to-br from-white to-green-50">
               <CardContent className="p-8">
                 <div className="relative inline-flex p-5 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl mb-6 shadow-lg group-hover:shadow-xl transition-shadow">
                   <Droplet className="w-10 h-10 text-white" />

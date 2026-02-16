@@ -1,14 +1,32 @@
+import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import AdminSidebar from '../components/admin/AdminSidebar'
 import DashboardHeader from '../components/shared/DashboardHeader'
 
 const AdminLayout = () => {
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <DashboardHeader role="admin" />
-      <div className="flex">
-        <AdminSidebar />
-        <main className="flex-1 p-6">
+      <DashboardHeader role="admin" onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
+      
+      {/* Backdrop for mobile - ABOVE content, BELOW sidebar */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-[45] md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+      
+      {/* Sidebar - ABOVE backdrop */}
+      <AdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      
+      {/* Main content - Desktop has sidebar, mobile doesn't */}
+      <div className="md:flex">
+        {/* Desktop spacer for sidebar */}
+        <div className="hidden md:block md:w-64 flex-shrink-0"></div>
+        
+        <main className="flex-1 p-3 sm:p-6">
           <Outlet />
         </main>
       </div>

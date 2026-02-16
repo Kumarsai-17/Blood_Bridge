@@ -240,11 +240,28 @@ exports.login = async (req, res) => {
 
     // For all other users, send OTP for login verification
     const otp = generateOtp();
-    const hashedOtp = await bcrypt.hash(otp, 10);
+    console.log('🔑 Generated OTP:', {
+      otp,
+      otpType: typeof otp,
+      otpLength: otp.length
+    });
+    
+    // Ensure OTP is a string and hash it
+    const otpString = String(otp).trim();
+    const hashedOtp = await bcrypt.hash(otpString, 10);
+    console.log('🔒 Hashed OTP:', {
+      hashedOtp,
+      originalOtp: otpString
+    });
 
     user.otp = hashedOtp;
     user.otpExpiry = Date.now() + 10 * 60 * 1000; // 10 minutes
     await user.save();
+
+    console.log('💾 OTP saved to database:', {
+      email: user.email,
+      otpExpiry: new Date(user.otpExpiry).toISOString()
+    });
 
     // Send OTP email
     await sendEmail(
@@ -310,10 +327,28 @@ exports.verifyLoginOTP = async (req, res) => {
       });
     }
 
-    const isOtpValid = await bcrypt.compare(otp.toString().trim(), user.otp);
+    // Debug logging
+    console.log('🔍 OTP Comparison Debug:', {
+      receivedOtp: otp,
+      receivedOtpType: typeof otp,
+      receivedOtpLength: otp ? otp.length : 0,
+      receivedOtpTrimmed: String(otp).trim(),
+      hashedOtpInDb: user.otp,
+      otpExpiryTime: user.otpExpiry,
+      currentTime: Date.now(),
+      timeRemaining: user.otpExpiry - Date.now()
+    });
+
+    // Ensure OTP is a string and trimmed before comparison
+    const otpString = String(otp).trim();
+    const isOtpValid = await bcrypt.compare(otpString, user.otp);
     
     if (!isOtpValid) {
       console.log('❌ Invalid OTP for:', email);
+      console.log('❌ OTP Mismatch Details:', {
+        providedOtp: otpString,
+        storedHashExists: !!user.otp
+      });
       return res.status(400).json({
         success: false,
         message: "Invalid OTP"

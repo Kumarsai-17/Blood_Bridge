@@ -283,7 +283,7 @@ BloodBridge Team`
       
       return res.status(500).json({
         success: false,
-        message: "Failed to send OTP email. Please try again or contact support."
+        message: "Failed to send OTP email. Please configure email service properly."
       });
     }
 

@@ -140,7 +140,6 @@ BloodBridge Team`
     await user.save();
 
     // Send verification email
-    console.log('📧 Attempting to send verification email to:', user.email);
     const emailResult = await sendEmail(
       user.email,
       "Verify Your BloodBridge Account",
@@ -159,7 +158,6 @@ BloodBridge Team`
     );
 
     if (!emailResult.success) {
-      console.error('❌ Failed to send verification email:', emailResult.error);
       // Delete the user if email fails to send
       await User.findByIdAndDelete(user._id);
       
@@ -168,8 +166,6 @@ BloodBridge Team`
         message: "Failed to send verification email. Please try registering again or contact support."
       });
     }
-
-    console.log('✅ Verification email sent successfully to:', user.email, 'MessageID:', emailResult.messageId);
 
     res.status(201).json({
       success: true,
@@ -254,31 +250,14 @@ exports.login = async (req, res) => {
 
     // For all other users, send OTP for login verification
     const otp = generateOtp();
-    console.log('🔑 Generated OTP:', {
-      otp,
-      otpType: typeof otp,
-      otpLength: otp.length
-    });
-    
-    // Ensure OTP is a string and hash it
     const otpString = String(otp).trim();
     const hashedOtp = await bcrypt.hash(otpString, 10);
-    console.log('🔒 Hashed OTP:', {
-      hashedOtp,
-      originalOtp: otpString
-    });
 
     user.otp = hashedOtp;
     user.otpExpiry = Date.now() + 10 * 60 * 1000; // 10 minutes
     await user.save();
 
-    console.log('💾 OTP saved to database:', {
-      email: user.email,
-      otpExpiry: new Date(user.otpExpiry).toISOString()
-    });
-
     // Send OTP email
-    console.log('📧 Attempting to send OTP email to:', user.email);
     const emailResult = await sendEmail(
       user.email,
       "Login Verification - BloodBridge",
@@ -297,7 +276,6 @@ BloodBridge Team`
     );
 
     if (!emailResult.success) {
-      console.error('❌ Failed to send OTP email:', emailResult.error);
       // Clear the OTP from database if email fails
       user.otp = null;
       user.otpExpiry = null;
@@ -308,8 +286,6 @@ BloodBridge Team`
         message: "Failed to send OTP email. Please try again or contact support."
       });
     }
-
-    console.log('✅ Login OTP sent successfully to:', email, 'MessageID:', emailResult.messageId);
 
     res.json({
       success: true,
@@ -355,28 +331,10 @@ exports.verifyLoginOTP = async (req, res) => {
       });
     }
 
-    // Debug logging
-    console.log('🔍 OTP Comparison Debug:', {
-      receivedOtp: otp,
-      receivedOtpType: typeof otp,
-      receivedOtpLength: otp ? otp.length : 0,
-      receivedOtpTrimmed: String(otp).trim(),
-      hashedOtpInDb: user.otp,
-      otpExpiryTime: user.otpExpiry,
-      currentTime: Date.now(),
-      timeRemaining: user.otpExpiry - Date.now()
-    });
-
-    // Ensure OTP is a string and trimmed before comparison
     const otpString = String(otp).trim();
     const isOtpValid = await bcrypt.compare(otpString, user.otp);
     
     if (!isOtpValid) {
-      console.log('❌ Invalid OTP for:', email);
-      console.log('❌ OTP Mismatch Details:', {
-        providedOtp: otpString,
-        storedHashExists: !!user.otp
-      });
       return res.status(400).json({
         success: false,
         message: "Invalid OTP"
@@ -394,8 +352,6 @@ exports.verifyLoginOTP = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
-
-    console.log('✅ Login OTP verified successfully:', email);
 
     res.json({
       success: true,
@@ -446,11 +402,6 @@ exports.resendLoginOtp = async (req, res) => {
 
     // Generate new OTP
     const otp = generateOtp();
-    console.log('🔑 Resending OTP:', {
-      otp,
-      email: user.email
-    });
-    
     const otpString = String(otp).trim();
     const hashedOtp = await bcrypt.hash(otpString, 10);
 
@@ -459,7 +410,6 @@ exports.resendLoginOtp = async (req, res) => {
     await user.save();
 
     // Send OTP email
-    console.log('📧 Attempting to resend OTP email to:', user.email);
     const emailResult = await sendEmail(
       user.email,
       "Login Verification - BloodBridge",
@@ -476,7 +426,6 @@ BloodBridge Team`
     );
 
     if (!emailResult.success) {
-      console.error('❌ Failed to resend OTP email:', emailResult.error);
       // Clear the OTP from database if email fails
       user.otp = null;
       user.otpExpiry = null;
@@ -487,8 +436,6 @@ BloodBridge Team`
         message: "Failed to send OTP email. Please try again or contact support."
       });
     }
-
-    console.log('✅ Login OTP resent successfully to:', email, 'MessageID:', emailResult.messageId);
 
     res.json({
       success: true,
@@ -665,11 +612,9 @@ Best regards,
 BloodBridge Team`;
     }
 
-    console.log('📧 Attempting to send password reset OTP to:', user.email);
     const emailResult = await sendEmail(user.email, emailSubject, emailBody);
 
     if (!emailResult.success) {
-      console.error('❌ Failed to send password reset email:', emailResult.error);
       // Clear the OTP from database if email fails
       user.otp = null;
       user.otpExpiry = null;
@@ -681,12 +626,10 @@ BloodBridge Team`;
       });
     }
 
-    console.log('✅ Password reset OTP sent successfully to:', user.email, 'MessageID:', emailResult.messageId);
-
     res.json({
       success: true,
       message: "OTP sent successfully to your email",
-      role: user.role // Send role back for frontend to show appropriate message
+      role: user.role
     });
   } catch (error) {
     console.error("FORGOT PASSWORD ERROR:", error);
@@ -805,11 +748,6 @@ exports.resendVerificationOtp = async (req, res) => {
     }
 
     const otp = generateOtp();
-    console.log('🔑 Resending verification OTP:', {
-      otp,
-      email: user.email
-    });
-    
     const otpString = String(otp).trim();
     const hashedOtp = await bcrypt.hash(otpString, 10);
 
@@ -817,7 +755,6 @@ exports.resendVerificationOtp = async (req, res) => {
     user.emailVerificationExpiry = Date.now() + 10 * 60 * 1000; // 10 minutes
     await user.save();
 
-    console.log('📧 Attempting to resend verification email to:', user.email);
     const emailResult = await sendEmail(
       user.email,
       "BloodBridge - New Verification Code",
@@ -832,7 +769,6 @@ BloodBridge Team`
     );
 
     if (!emailResult.success) {
-      console.error('❌ Failed to resend verification email:', emailResult.error);
       // Clear the OTP from database if email fails
       user.emailVerificationOtp = null;
       user.emailVerificationExpiry = null;
@@ -843,8 +779,6 @@ BloodBridge Team`
         message: "Failed to send verification email. Please try again or contact support."
       });
     }
-
-    console.log('✅ Verification email resent successfully to:', user.email, 'MessageID:', emailResult.messageId);
 
     res.json({
       success: true,
@@ -927,63 +861,5 @@ exports.resetPasswordWithOtp = async (req, res) => {
   } catch (error) {
     console.error("RESET PASSWORD ERROR:", error);
     res.status(500).json({ message: "Server error" });
-  }
-};
-
-
-/**
- * TEST EMAIL - For debugging email configuration
- * This endpoint can be removed in production
- */
-exports.testEmail = async (req, res) => {
-  try {
-    const { email } = req.body;
-    
-    if (!email) {
-      return res.status(400).json({
-        success: false,
-        message: "Email is required"
-      });
-    }
-
-    console.log('🧪 Testing email configuration...');
-    console.log('📧 Sending test email to:', email);
-    
-    const emailResult = await sendEmail(
-      email,
-      "BloodBridge - Test Email",
-      `Hello,
-
-This is a test email from BloodBridge to verify that the email configuration is working correctly.
-
-If you received this email, the email system is functioning properly!
-
-Test Time: ${new Date().toISOString()}
-
-Best regards,
-BloodBridge Team`
-    );
-
-    if (!emailResult.success) {
-      console.error('❌ Test email failed:', emailResult.error);
-      return res.status(500).json({
-        success: false,
-        message: "Email test failed: " + emailResult.error
-      });
-    }
-
-    console.log('✅ Test email sent successfully. MessageID:', emailResult.messageId);
-
-    res.json({
-      success: true,
-      message: "Test email sent successfully! Check your inbox.",
-      messageId: emailResult.messageId
-    });
-  } catch (error) {
-    console.error("TEST EMAIL ERROR:", error);
-    res.status(500).json({
-      success: false,
-      message: "Server error: " + error.message
-    });
   }
 };

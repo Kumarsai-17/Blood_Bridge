@@ -16,6 +16,9 @@ router.post("/verify-otp", authController.verifyEmail);
 router.post("/resend-verification", authController.resendVerificationOtp);
 router.post("/resend-otp", authController.resendVerificationOtp);
 
+// Test endpoint (can be removed in production)
+router.post("/test-email", authController.testEmail);
+
 // Protected routes
 router.post("/change-password", auth, authController.changePassword);
 

@@ -1,5 +1,17 @@
 /* Mobile Utility Classes */
 
+/* Prevent text overflow and overlapping */
+* {
+  box-sizing: border-box;
+}
+
+/* Better word wrapping */
+.text-wrap {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
 /* Touch-friendly spacing */
 .touch-target {
   min-height: 44px;
@@ -14,6 +26,7 @@
   width: 100%;
   padding-left: 1rem;
   padding-right: 1rem;
+  overflow-x: hidden;
 }
 
 @media (min-width: 768px) {
@@ -30,21 +43,24 @@
   }
 }
 
-/* Responsive text */
+/* Responsive text - prevent overflow */
 .text-responsive {
   font-size: clamp(0.875rem, 2vw, 1rem);
+  line-height: 1.5;
 }
 
 .heading-responsive {
   font-size: clamp(1.5rem, 4vw, 2.25rem);
+  line-height: 1.2;
 }
 
-/* Mobile-friendly cards */
+/* Mobile-friendly cards - prevent content overflow */
 .mobile-card {
   background: white;
   border-radius: 12px;
   padding: 1rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
 
 @media (min-width: 768px) {
@@ -299,4 +315,44 @@
 .scroll-x-mobile {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Mobile button improvements */
+@media (max-width: 640px) {
+  button {
+    min-height: 44px;
+    padding: 0.75rem 1rem;
+    font-size: 0.9375rem;
+  }
+  
+  /* Prevent button text overflow */
+  button span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+  }
+}
+
+/* Icon spacing fixes for mobile */
+@media (max-width: 640px) {
+  .icon-text-gap {
+    gap: 0.5rem;
+  }
+  
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+/* Prevent horizontal scroll on mobile */
+@media (max-width: 768px) {
+  body {
+    overflow-x: hidden;
+  }
+  
+  * {
+    max-width: 100%;
+  }
 }

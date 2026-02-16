@@ -232,11 +232,30 @@ exports.getDonorDashboard = async (req, res) => {
         );
         return {
           ...request.toObject(),
+          hospitalId: request.hospital._id.toString(),
           distance: distance.toFixed(2)
         };
       })
       .filter(request => request.distance <= 15)
-      .sort((a, b) => a.distance - b.distance);
+      .sort((a, b) => {
+        // Sort by urgency first, then distance
+        const urgencyOrder = { high: 3, medium: 2, low: 1 };
+        const urgencyDiff = (urgencyOrder[b.urgency] || 0) - (urgencyOrder[a.urgency] || 0);
+        if (urgencyDiff !== 0) return urgencyDiff;
+        return a.distance - b.distance;
+      });
+
+    // Remove duplicates: Keep only one request per hospital
+    const uniqueRequests = [];
+    const seenHospitals = new Set();
+    
+    for (const request of requestsWithDistance) {
+      if (!seenHospitals.has(request.hospitalId)) {
+        seenHospitals.add(request.hospitalId);
+        const { hospitalId, ...requestData } = request;
+        uniqueRequests.push(requestData);
+      }
+    }
 
     // Get donor stats
     const myResponses = await BloodRequest.countDocuments({
@@ -258,7 +277,7 @@ exports.getDonorDashboard = async (req, res) => {
     res.json({
       success: true,
       data: {
-        availableRequests: requestsWithDistance.length,
+        availableRequests: uniqueRequests.length,
         myResponses,
         completedDonations,
         livesSaved: completedDonations * 3, // Estimate
@@ -270,7 +289,7 @@ exports.getDonorDashboard = async (req, res) => {
         activeRequestId: activeAcceptedRequest?._id,
         cooldownRemainingDays: !eligibleToDonate && donor.lastDonationDate ?
           Math.ceil(rules.DONATION_COOLDOWN_DAYS - (Date.now() - new Date(donor.lastDonationDate)) / (1000 * 60 * 60 * 24)) : 0,
-        nearbyRequests: requestsWithDistance
+        nearbyRequests: uniqueRequests
       }
     });
 
@@ -558,18 +577,38 @@ exports.getBloodRequests = async (req, res) => {
           createdAt: request.createdAt,
           hospitalName: request.hospital.name,
           hospitalPhone: request.hospital.phone,
+          hospitalId: request.hospital._id.toString(),
           location: request.hospital.location,
           distance: parseFloat(distance.toFixed(2))
         };
       })
       .filter(request => request.distance <= maxRadius)
-      .sort((a, b) => a.distance - b.distance);
+      .sort((a, b) => {
+        // Sort by urgency first (high > medium > low), then by distance
+        const urgencyOrder = { high: 3, medium: 2, low: 1 };
+        const urgencyDiff = (urgencyOrder[b.urgency] || 0) - (urgencyOrder[a.urgency] || 0);
+        if (urgencyDiff !== 0) return urgencyDiff;
+        return a.distance - b.distance;
+      });
 
-    console.log(`✅ Returning ${requestsWithDistance.length} requests within ${maxRadius}km`);
+    // Remove duplicates: Keep only the most urgent/closest request per hospital
+    const uniqueRequests = [];
+    const seenHospitals = new Set();
+    
+    for (const request of requestsWithDistance) {
+      if (!seenHospitals.has(request.hospitalId)) {
+        seenHospitals.add(request.hospitalId);
+        // Remove hospitalId from response (internal use only)
+        const { hospitalId, ...requestData } = request;
+        uniqueRequests.push(requestData);
+      }
+    }
+
+    console.log(`✅ Returning ${uniqueRequests.length} unique requests (removed ${requestsWithDistance.length - uniqueRequests.length} duplicates) within ${maxRadius}km`);
 
     res.json({
       success: true,
-      requests: requestsWithDistance
+      requests: uniqueRequests
     });
   } catch (err) {
     console.error("❌ GET BLOOD REQUESTS ERROR:", err);

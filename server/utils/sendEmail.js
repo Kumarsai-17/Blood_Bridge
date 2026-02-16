@@ -1,18 +1,20 @@
 const nodemailer = require("nodemailer");
 
-// Simple Gmail SMTP transporter
-const createGmailTransporter = () => {
+// Try multiple Gmail SMTP configurations
+const createGmailTransporter = (port = 587, secure = false) => {
   return nodemailer.createTransport({
     host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
+    port: port,
+    secure: secure,
     auth: {
       user: process.env.SYSTEM_EMAIL,
       pass: process.env.SYSTEM_EMAIL_PASS
     },
     tls: {
       rejectUnauthorized: false
-    }
+    },
+    connectionTimeout: 10000,
+    greetingTimeout: 10000
   });
 };
 
@@ -21,10 +23,44 @@ module.exports = async (to, subject, text, html = null) => {
     console.log('🔍 Email Config Check:', {
       hasResendKey: !!process.env.RESEND_API_KEY,
       hasGmailEmail: !!process.env.SYSTEM_EMAIL,
-      hasGmailPass: !!process.env.SYSTEM_EMAIL_PASS
+      hasGmailPass: !!process.env.SYSTEM_EMAIL_PASS,
+      recipient: to
     });
 
-    // Check if using Resend (recommended for production)
+    // Try Gmail with multiple port configurations
+    if (process.env.SYSTEM_EMAIL && process.env.SYSTEM_EMAIL_PASS) {
+      const gmailConfigs = [
+        { port: 587, secure: false, name: 'Port 587 (TLS)' },
+        { port: 465, secure: true, name: 'Port 465 (SSL)' },
+        { port: 25, secure: false, name: 'Port 25' }
+      ];
+
+      for (const config of gmailConfigs) {
+        try {
+          console.log(`📧 Attempting Gmail via ${config.name}`);
+          
+          const transporter = createGmailTransporter(config.port, config.secure);
+          const mailOptions = {
+            from: `"BloodBridge System" <${process.env.SYSTEM_EMAIL}>`,
+            to,
+            subject,
+            text,
+            html: html || text
+          };
+          
+          const result = await transporter.sendMail(mailOptions);
+          console.log(`✅ Email sent via Gmail ${config.name}:`, result.messageId);
+          return { success: true, messageId: result.messageId };
+        } catch (gmailError) {
+          console.log(`⚠️ Gmail ${config.name} failed:`, gmailError.message);
+          continue; // Try next configuration
+        }
+      }
+      
+      console.log('⚠️ All Gmail configurations failed, trying Resend');
+    }
+
+    // Fallback to Resend
     if (process.env.RESEND_API_KEY) {
       console.log('📧 Sending via Resend API');
       const { Resend } = require('resend');
@@ -46,25 +82,7 @@ module.exports = async (to, subject, text, html = null) => {
       return { success: true, messageId: data.id };
     }
 
-    // Fallback to Gmail
-    console.log('📧 Sending via Gmail');
-    
-    if (!process.env.SYSTEM_EMAIL || !process.env.SYSTEM_EMAIL_PASS) {
-      throw new Error("Email configuration missing");
-    }
-
-    const transporter = createGmailTransporter();
-    const mailOptions = {
-      from: `"BloodBridge System" <${process.env.SYSTEM_EMAIL}>`,
-      to,
-      subject,
-      text,
-      html: html || text
-    };
-    
-    const result = await transporter.sendMail(mailOptions);
-    console.log('✅ Email sent via Gmail:', result.messageId);
-    return { success: true, messageId: result.messageId };
+    throw new Error("No email configuration available or all methods failed");
 
   } catch (error) {
     console.error("SEND EMAIL ERROR:", error.message);

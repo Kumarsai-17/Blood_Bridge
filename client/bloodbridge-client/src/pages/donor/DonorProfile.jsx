@@ -323,27 +323,6 @@ const DonorProfile = () => {
             </CardContent>
           </Card>
 
-          {/* Change Password Card - Below Personal Info */}
-          <Card className="shadow-soft-lg">
-            <CardContent className="p-4 sm:p-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-1 flex items-center gap-2">
-                    <Shield className="w-5 h-5 text-gray-600" />
-                    Security Settings
-                  </h3>
-                  <p className="text-xs sm:text-sm text-gray-600">Update your password to keep your account secure</p>
-                </div>
-                <button
-                  onClick={() => window.location.href = '/change-password'}
-                  className="px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-800 hover:to-gray-900 text-white rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg whitespace-nowrap"
-                >
-                  <Shield className="w-4 h-4" />
-                  Change Password
-                </button>
-              </div>
-            </CardContent>
-          </Card>
         </div>
 
         {/* Right Column - Stats & Status */}
@@ -429,19 +408,6 @@ const DonorProfile = () => {
             </CardContent>
           </Card>
 
-          {/* Logout Button - Mobile Only */}
-          <div className="md:hidden">
-            <button
-              onClick={() => {
-                logout()
-                navigate('/login')
-              }}
-              className="w-full py-3 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700 transition-all flex items-center justify-center gap-2 shadow-lg"
-            >
-              <LogOut className="w-5 h-5" />
-              <span>Logout</span>
-            </button>
-          </div>
         </div>
       </div>
 

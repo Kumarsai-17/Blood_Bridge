@@ -3,7 +3,6 @@ import {
   User, 
   History, 
   MapPin, 
-  Bell,
   Heart,
   Droplet,
   X,
@@ -23,11 +22,10 @@ const DonorSidebar = ({ isOpen, onClose }) => {
 
   const menuItems = [
     { path: '/donor/dashboard', icon: Home, label: 'Dashboard' },
-    { path: '/donor/profile', icon: User, label: 'My Profile' },
     { path: '/donor/history', icon: History, label: 'Donation History' },
     { path: '/donor/requests', icon: Heart, label: 'Blood Requests' },
     { path: '/donor/map', icon: MapPin, label: 'Nearby Locations' },
-    { path: '/donor/notifications', icon: Bell, label: 'Notifications' },
+    { path: '/donor/profile', icon: User, label: 'My Profile' },
   ]
 
   // Handle swipe gestures

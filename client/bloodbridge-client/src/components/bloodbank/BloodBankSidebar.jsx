@@ -28,8 +28,8 @@ const BloodBankSidebar = ({ isOpen, onClose }) => {
     { path: '/bloodbank/requests', icon: List, label: 'Requests' },
     { path: '/bloodbank/inventory/history', icon: History, label: 'History' },
     { path: '/bloodbank/reports', icon: BarChart, label: 'Reports' },
-    { path: '/bloodbank/profile', icon: User, label: 'Bank Profile' },
     { path: '/settings', icon: Settings, label: 'Settings' },
+    { path: '/bloodbank/profile', icon: User, label: 'Bank Profile' },
   ]
 
   // Handle swipe gestures

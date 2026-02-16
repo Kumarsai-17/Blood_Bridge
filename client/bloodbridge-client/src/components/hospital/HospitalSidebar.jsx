@@ -27,8 +27,8 @@ const HospitalSidebar = ({ isOpen, onClose }) => {
     { path: '/hospital/create-request', icon: PlusCircle, label: 'Create Request' },
     { path: '/hospital/requests', icon: List, label: 'My Requests' },
     { path: '/hospital/history', icon: History, label: 'Donation History' },
-    { path: '/hospital/profile', icon: User, label: 'Hospital Profile' },
     { path: '/settings', icon: Settings, label: 'Settings' },
+    { path: '/hospital/profile', icon: User, label: 'Hospital Profile' },
   ]
 
   // Handle swipe gestures

@@ -14,63 +14,84 @@ const DashboardLayout = () => {
     const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
     const navigate = useNavigate()
 
-    // Dynamic Navigation based on Role
-    const getNavItems = () => {
-        switch (user?.role) {
-            case 'admin':
-                return [
-                    { icon: LayoutDashboard, label: 'Dashboard', path: '/admin/dashboard' },
-                    { icon: Users, label: 'Users', path: '/admin/users' },
-                    { icon: ShieldCheck, label: 'Approvals', path: '/admin/pending-approvals' },
-                    { icon: FileText, label: 'Reports', path: '/admin/reports' },
-                ]
-            case 'super_admin':
-                return [
-                    { icon: LayoutDashboard, label: 'Dashboard', path: '/admin/dashboard' },
-                    { icon: Users, label: 'Users', path: '/admin/users' },
-                    { icon: ShieldCheck, label: 'Approvals', path: '/admin/pending-approvals' },
-                    { icon: Shield, label: 'Create Admin', path: '/admin/create-admin' },
-                    { icon: FileText, label: 'Reports', path: '/admin/reports' },
-                ]
-            case 'donor':
-                return [
-                    { icon: LayoutDashboard, label: 'Dashboard', path: '/donor/dashboard' },
-                    { icon: Activity, label: 'Requests', path: '/donor/requests' },
-                    { icon: Map, label: 'Map View', path: '/donor/map' },
-                    { icon: History, label: 'History', path: '/donor/history' },
-                ]
-            case 'hospital':
-                return [
-                    { icon: LayoutDashboard, label: 'Dashboard', path: '/hospital/dashboard' },
-                    { icon: Activity, label: 'Requests', path: '/hospital/requests' },
-                    { icon: Shield, label: 'Disaster Mode', path: '/hospital/disaster-toggle' },
-                    { icon: History, label: 'History', path: '/hospital/history' },
-                ]
-            case 'bloodbank':
-                return [
-                    { icon: LayoutDashboard, label: 'Dashboard', path: '/bloodbank/dashboard' },
-                    { icon: Database, label: 'Inventory', path: '/bloodbank/inventory' },
-                    { icon: Activity, label: 'Requests', path: '/bloodbank/requests' },
-                    { icon: History, label: 'History', path: '/bloodbank/inventory/history' },
-                    { icon: FileText, label: 'Reports', path: '/bloodbank/reports' },
-                ]
-            default:
-                return []
+    // Dynamic Navigation based on Role (Desktop - no My Profile)
+    const getNavItems = (isMobile = false) => {
+        const baseItems = {
+            admin: [
+                { icon: LayoutDashboard, label: 'Dashboard', path: '/admin/dashboard' },
+                { icon: Users, label: 'Users', path: '/admin/users' },
+                { icon: ShieldCheck, label: 'Approvals', path: '/admin/pending-approvals' },
+                { icon: FileText, label: 'Reports', path: '/admin/reports' },
+            ],
+            super_admin: [
+                { icon: LayoutDashboard, label: 'Dashboard', path: '/admin/dashboard' },
+                { icon: Users, label: 'Users', path: '/admin/users' },
+                { icon: ShieldCheck, label: 'Approvals', path: '/admin/pending-approvals' },
+                { icon: Shield, label: 'Create Admin', path: '/admin/create-admin' },
+                { icon: FileText, label: 'Reports', path: '/admin/reports' },
+            ],
+            donor: [
+                { icon: LayoutDashboard, label: 'Dashboard', path: '/donor/dashboard' },
+                { icon: Activity, label: 'Requests', path: '/donor/requests' },
+                { icon: Map, label: 'Map View', path: '/donor/map' },
+                { icon: History, label: 'History', path: '/donor/history' },
+            ],
+            hospital: [
+                { icon: LayoutDashboard, label: 'Dashboard', path: '/hospital/dashboard' },
+                { icon: Activity, label: 'Requests', path: '/hospital/requests' },
+                { icon: Shield, label: 'Disaster Mode', path: '/hospital/disaster-toggle' },
+                { icon: History, label: 'History', path: '/hospital/history' },
+            ],
+            bloodbank: [
+                { icon: LayoutDashboard, label: 'Dashboard', path: '/bloodbank/dashboard' },
+                { icon: Database, label: 'Inventory', path: '/bloodbank/inventory' },
+                { icon: Activity, label: 'Requests', path: '/bloodbank/requests' },
+                { icon: History, label: 'History', path: '/bloodbank/inventory/history' },
+                { icon: FileText, label: 'Reports', path: '/bloodbank/reports' },
+            ]
         }
+
+        const items = baseItems[user?.role] || []
+        
+        // Add My Profile, Change Password, and Logout only for mobile
+        if (isMobile) {
+            const profilePaths = {
+                admin: '/admin/settings',
+                super_admin: '/admin/settings',
+                donor: '/donor/profile',
+                hospital: '/hospital/profile',
+                bloodbank: '/bloodbank/profile'
+            }
+            const profilePath = profilePaths[user?.role]
+            if (profilePath) {
+                items.push({ icon: User, label: 'My Profile', path: profilePath })
+            }
+            items.push({ icon: Lock, label: 'Change Password', path: '/change-password' })
+            items.push({ icon: LogOut, label: 'Logout', path: null, isLogout: true })
+        }
+        
+        return items
     }
 
-    const navItems = getNavItems()
+    const navItems = getNavItems(false) // Desktop items
 
     return (
         <div className="min-h-screen bg-gray-50 flex">
+            {/* Mobile Overlay */}
+            {sidebarOpen && (
+                <div 
+                    className="fixed inset-0 bg-black/50 z-40 md:hidden"
+                    onClick={() => setSidebarOpen(false)}
+                ></div>
+            )}
 
             {/* Sidebar */}
             <aside
-                className={`w-72 bg-white border-r border-gray-200 shadow-lg transition-all duration-300 ease-in-out flex-shrink-0 ${
-                    sidebarOpen ? 'ml-0' : '-ml-72'
+                className={`w-72 bg-white border-r border-gray-200 shadow-lg transition-all duration-300 ease-in-out flex-shrink-0 md:relative fixed inset-y-0 left-0 z-50 ${
+                    sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
                 }`}
             >
-                <div className="flex flex-col h-screen sticky top-0">
+                <div className="flex flex-col h-full">
                     {/* Brand Header */}
                     <div className="h-20 flex items-center px-6 border-b border-gray-200">
                         <div className="flex items-center gap-3">
@@ -84,25 +105,28 @@ const DashboardLayout = () => {
                         </div>
                         <button
                             onClick={() => setSidebarOpen(false)}
-                            className="ml-auto p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                            className="ml-auto p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors md:hidden"
                         >
                             <X className="w-5 h-5" />
                         </button>
                     </div>
 
                     {/* Navigation Links */}
-                    <div className="flex-1 overflow-y-auto py-6 px-4">
+                    <div className="flex-1 overflow-y-auto py-6 px-4 flex flex-col">
                         <div className="space-y-1">
-                            {navItems.map((item) => (
+                            {/* Desktop: Show only main items, Mobile: Show all except Change Password & Logout */}
+                            {getNavItems(true).filter(item => !item.label.includes('Change Password') && !item.isLogout).map((item, index) => (
                                 <NavLink
                                     key={item.path}
                                     to={item.path}
+                                    onClick={() => setSidebarOpen(false)}
                                     className={({ isActive }) => `
                                         flex items-center gap-3 px-4 py-3 rounded-xl transition-all
                                         ${isActive
                                             ? 'bg-blue-50 text-blue-600 font-semibold'
                                             : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                                         }
+                                        ${item.label === 'My Profile' ? 'md:hidden' : ''}
                                     `}
                                 >
                                     {({ isActive }) => (
@@ -112,6 +136,48 @@ const DashboardLayout = () => {
                                         </>
                                     )}
                                 </NavLink>
+                            ))}
+                        </div>
+                        
+                        {/* Spacer to push items to bottom - Mobile only */}
+                        <div className="flex-1 md:hidden"></div>
+                        
+                        {/* Bottom items - Change Password & Logout - Mobile only */}
+                        <div className="space-y-1 mt-6 pt-6 border-t border-gray-200 md:hidden">
+                            {getNavItems(true).filter(item => item.label.includes('Change Password') || item.isLogout).map((item, index) => (
+                                item.isLogout ? (
+                                    <button
+                                        key={index}
+                                        onClick={() => {
+                                            setSidebarOpen(false)
+                                            logout()
+                                        }}
+                                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-red-600 hover:bg-red-50"
+                                    >
+                                        <item.icon className="w-5 h-5" />
+                                        <span className="text-sm font-semibold">{item.label}</span>
+                                    </button>
+                                ) : (
+                                    <NavLink
+                                        key={item.path}
+                                        to={item.path}
+                                        onClick={() => setSidebarOpen(false)}
+                                        className={({ isActive }) => `
+                                            flex items-center gap-3 px-4 py-3 rounded-xl transition-all
+                                            ${isActive
+                                                ? 'bg-blue-50 text-blue-600 font-semibold'
+                                                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                                            }
+                                        `}
+                                    >
+                                        {({ isActive }) => (
+                                            <>
+                                                <item.icon className="w-5 h-5" />
+                                                <span className="text-sm">{item.label}</span>
+                                            </>
+                                        )}
+                                    </NavLink>
+                                )
                             ))}
                         </div>
                     </div>

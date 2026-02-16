@@ -138,7 +138,7 @@ const ChangePassword = () => {
                     <button
                       type="button"
                       onClick={() => togglePassword('current')}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      className="absolute top-0 right-0 h-full pr-3 flex items-center text-gray-400 hover:text-gray-600"
                     >
                       {showPassword.current ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                     </button>
@@ -166,7 +166,7 @@ const ChangePassword = () => {
                   <button
                     type="button"
                     onClick={() => togglePassword('new')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute top-0 right-0 h-full pr-3 flex items-center text-gray-400 hover:text-gray-600"
                   >
                     {showPassword.new ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
@@ -197,7 +197,7 @@ const ChangePassword = () => {
                   <button
                     type="button"
                     onClick={() => togglePassword('confirm')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute top-0 right-0 h-full pr-3 flex items-center text-gray-400 hover:text-gray-600"
                   >
                     {showPassword.confirm ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>

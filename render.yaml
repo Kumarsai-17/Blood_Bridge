@@ -12,3 +12,17 @@ services:
         value: production
       - key: PORT
         value: 5001
+      - key: MONGO_URI
+        value: mongodb+srv://bloodbridge:sai1234@cluster0.fty6fgv.mongodb.net/bloodbridge?appName=Cluster0
+      - key: JWT_SECRET
+        value: bloodbridge_secret_key
+      - key: FRONTEND_URL
+        value: https://blood-bridge-mu.vercel.app
+      - key: SYSTEM_EMAIL
+        value: paidikumarsai1@gmail.com
+      - key: SYSTEM_EMAIL_PASS
+        value: uiwadsdxmsxmsnpn
+      - key: RESEND_API_KEY
+        value: re_gzCrkDqz_KmX9MJhUswauutaNyFpNoNxE
+      - key: RESEND_FROM_EMAIL
+        value: BloodBridge <onboarding@resend.dev>

@@ -303,7 +303,7 @@ const DonorRegister = () => {
       </CardContent>
       <CardFooter className="flex justify-center bg-slate-50/50 border-t border-slate-100 p-6">
         <div className="text-xs text-slate-500 font-medium">
-          Already a guardian? <Link to="/login" className="text-indigo-600 font-bold hover:underline">Access Command Center</Link>
+          Already a guardian? <Link to="/login" className="text-indigo-600 font-bold hover:underline">Login</Link>
         </div>
       </CardFooter>
 

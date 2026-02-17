@@ -190,30 +190,26 @@ const DashboardLayout = () => {
                 {/* Top Navbar */}
                 <header className="h-20 bg-white sticky top-0 z-30 flex items-center justify-between px-6 border-b border-gray-200 shadow-sm">
                     <div className="flex items-center gap-4">
-                        {!sidebarOpen && (
-                            <>
-                                <button
-                                    onClick={() => setSidebarOpen(!sidebarOpen)}
-                                    className="p-2 -ml-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-                                >
-                                    <Menu className="w-6 h-6" />
-                                </button>
+                        <button
+                            onClick={() => setSidebarOpen(!sidebarOpen)}
+                            className="p-2 -ml-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                        >
+                            <Menu className="w-6 h-6" />
+                        </button>
 
-                                {/* BloodBridge Logo - Only visible when sidebar is closed */}
-                                <button
-                                    onClick={() => navigate('/')}
-                                    className="flex items-center gap-3 hover:opacity-80 transition-opacity"
-                                >
-                                    <div className="p-2 bg-red-100 rounded-lg">
-                                        <Droplet className="w-5 h-5 text-red-600" />
-                                    </div>
-                                    <div className="text-left">
-                                        <h1 className="text-lg font-bold text-gray-900">BloodBridge</h1>
-                                        <p className="text-xs text-gray-500">Save Lives Together</p>
-                                    </div>
-                                </button>
-                            </>
-                        )}
+                        {/* BloodBridge Logo - Hidden when sidebar is open on mobile */}
+                        <button
+                            onClick={() => navigate('/')}
+                            className={`flex items-center gap-3 hover:opacity-80 transition-opacity ${sidebarOpen ? 'hidden md:flex' : 'flex'}`}
+                        >
+                            <div className="p-2 bg-red-100 rounded-lg">
+                                <Droplet className="w-5 h-5 text-red-600" />
+                            </div>
+                            <div className="text-left">
+                                <h1 className="text-lg font-bold text-gray-900">BloodBridge</h1>
+                                <p className="text-xs text-gray-500">Save Lives Together</p>
+                            </div>
+                        </button>
                     </div>
 
                     <div className="flex items-center gap-4">

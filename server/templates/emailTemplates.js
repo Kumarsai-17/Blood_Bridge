@@ -28,6 +28,32 @@ const getEmailStyles = () => `
     .urgency-medium { color: #f59e0b; font-weight: bold; }
     .urgency-low { color: #10b981; font-weight: bold; }
     .warning-banner { background: #fef2f2; border: 2px solid #dc2626; padding: 15px; margin: 20px 0; border-radius: 8px; text-align: center; }
+    
+    /* Mobile Responsive Styles */
+    @media only screen and (max-width: 600px) {
+      .container { padding: 10px !important; width: 100% !important; }
+      .header { padding: 20px 15px !important; border-radius: 8px 8px 0 0 !important; }
+      .header h1 { font-size: 22px !important; }
+      .header .logo { font-size: 28px !important; }
+      .header p { font-size: 13px !important; }
+      .content { padding: 20px 15px !important; }
+      .otp-box { padding: 15px !important; margin: 15px 0 !important; }
+      .otp-code { font-size: 28px !important; letter-spacing: 4px !important; }
+      .alert-box, .info-box, .success-box { padding: 12px !important; margin: 15px 0 !important; font-size: 13px !important; }
+      .credentials-box { padding: 15px !important; margin: 15px 0 !important; }
+      .detail-row { flex-direction: column !important; padding: 10px 0 !important; }
+      .detail-label { width: 100% !important; margin-bottom: 5px !important; font-size: 12px !important; }
+      .detail-value { font-size: 14px !important; }
+      .button { padding: 12px 20px !important; font-size: 14px !important; display: block !important; width: 100% !important; box-sizing: border-box !important; }
+      .footer { padding: 20px 15px !important; font-size: 12px !important; }
+      .warning-banner { padding: 12px !important; margin: 15px 0 !important; }
+      h2 { font-size: 20px !important; }
+      h3 { font-size: 18px !important; }
+      h4 { font-size: 16px !important; }
+      p { font-size: 14px !important; }
+      ul { padding-left: 15px !important; }
+      li { font-size: 13px !important; }
+    }
   </style>
 `;
 
@@ -124,10 +150,28 @@ exports.otpTemplate = (data) => {
  * Used for: Notifying donors about blood requests
  */
 exports.bloodRequestTemplate = (data) => {
-  const { donorName, bloodGroup, units, urgency, hospitalName, distance, notes, requestUrl, isDisaster } = data;
+  const { 
+    donorName, 
+    bloodGroup, 
+    units, 
+    urgency, 
+    hospitalName, 
+    hospitalPhone, 
+    hospitalAddress, 
+    hospitalLocation,
+    distance, 
+    notes, 
+    requestUrl, 
+    isDisaster 
+  } = data;
   
   const urgencyClass = `urgency-${urgency}`;
   const urgencyEmoji = urgency === 'high' ? '🚨' : urgency === 'medium' ? '⚠️' : 'ℹ️';
+  
+  // Format location for display
+  const locationText = hospitalLocation 
+    ? `${hospitalLocation.lat.toFixed(4)}, ${hospitalLocation.lng.toFixed(4)}` 
+    : 'Location not available';
   
   return `
 <!DOCTYPE html>
@@ -147,16 +191,27 @@ exports.bloodRequestTemplate = (data) => {
     
     <div class="content">
       ${isDisaster ? `
-        <div class="alert-box">
-          <h2 style="margin: 0 0 10px 0; color: #dc2626;">🚨 EMERGENCY DISASTER ALERT</h2>
-          <p style="margin: 0; font-weight: 600;">This is a critical emergency request during disaster mode. Immediate response needed!</p>
+        <div class="alert-box" style="background: #7f1d1d; color: white; border: 3px solid #dc2626;">
+          <h2 style="margin: 0 0 10px 0; color: #fff; font-size: 22px;">🚨 EMERGENCY DISASTER ALERT 🚨</h2>
+          <p style="margin: 0; font-weight: 600; font-size: 16px; color: #fef2f2;">
+            This is a CRITICAL EMERGENCY request during DISASTER MODE!
+          </p>
+          <p style="margin: 10px 0 0 0; font-size: 14px; color: #fecaca;">
+            Mass casualty event in progress. Multiple lives at stake. IMMEDIATE response needed!
+          </p>
+          <p style="margin: 10px 0 0 0; font-size: 13px; color: #fecaca; font-style: italic;">
+            All donation cooldown periods have been suspended. Every donor is urgently needed.
+          </p>
         </div>
       ` : ''}
       
       <h2 style="color: #111827; margin-top: 0;">Hello ${donorName},</h2>
       
       <p style="font-size: 16px; color: #374151;">
-        A nearby hospital urgently needs your help! Your blood type matches a critical requirement.
+        ${isDisaster 
+          ? '<strong style="color: #dc2626;">URGENT:</strong> A nearby hospital urgently needs your help during this emergency! Your blood type matches a critical requirement.' 
+          : 'A nearby hospital urgently needs your help! Your blood type matches a critical requirement.'
+        }
       </p>
       
       <div class="alert-box">
@@ -177,10 +232,12 @@ exports.bloodRequestTemplate = (data) => {
           <div class="detail-value"><span class="${urgencyClass}">${urgencyEmoji} ${urgency.toUpperCase()}</span></div>
         </div>
         
+        ${notes ? `
         <div class="detail-row">
-          <div class="detail-label">Hospital:</div>
-          <div class="detail-value">${hospitalName}</div>
+          <div class="detail-label">Notes:</div>
+          <div class="detail-value">${notes}</div>
         </div>
+        ` : ''}
         
         ${distance ? `
         <div class="detail-row">
@@ -188,30 +245,84 @@ exports.bloodRequestTemplate = (data) => {
           <div class="detail-value">📍 ${distance} km from you</div>
         </div>
         ` : ''}
+      </div>
+      
+      <div style="background: #f0f9ff; border: 2px solid #3b82f6; padding: 20px; margin: 25px 0; border-radius: 8px;">
+        <h3 style="margin: 0 0 15px 0; color: #1e40af;">🏥 Hospital Contact Information</h3>
         
-        ${notes ? `
+        <div class="detail-row" style="border-bottom: 1px solid #dbeafe;">
+          <div class="detail-label">Hospital Name:</div>
+          <div class="detail-value" style="font-weight: bold; color: #1e40af;">${hospitalName}</div>
+        </div>
+        
+        ${hospitalPhone ? `
+        <div class="detail-row" style="border-bottom: 1px solid #dbeafe;">
+          <div class="detail-label">Phone Number:</div>
+          <div class="detail-value">
+            <a href="tel:${hospitalPhone}" style="color: #dc2626; text-decoration: none; font-weight: 600;">
+              📞 ${hospitalPhone}
+            </a>
+          </div>
+        </div>
+        ` : ''}
+        
+        ${hospitalAddress ? `
+        <div class="detail-row" style="border-bottom: 1px solid #dbeafe;">
+          <div class="detail-label">Address:</div>
+          <div class="detail-value">${hospitalAddress}</div>
+        </div>
+        ` : ''}
+        
+        ${hospitalLocation ? `
         <div class="detail-row" style="border-bottom: none;">
-          <div class="detail-label">Notes:</div>
-          <div class="detail-value">${notes}</div>
+          <div class="detail-label">Location:</div>
+          <div class="detail-value">
+            <a href="https://www.google.com/maps?q=${hospitalLocation.lat},${hospitalLocation.lng}" 
+               target="_blank" 
+               style="color: #dc2626; text-decoration: none; font-weight: 600;">
+              📍 View on Map
+            </a>
+            <br>
+            <span style="font-size: 12px; color: #6b7280;">${locationText}</span>
+          </div>
         </div>
         ` : ''}
       </div>
       
       <div style="text-align: center; margin: 30px 0;">
-        <a href="${requestUrl}" class="button">
-          View & Respond to Request →
+        <a href="${requestUrl}" class="button" style="font-size: 16px; padding: 16px 32px;">
+          ${isDisaster ? '🚨 RESPOND TO EMERGENCY REQUEST →' : 'View & Respond to Request →'}
         </a>
       </div>
       
-      <div class="info-box">
+      <div class="${isDisaster ? 'alert-box' : 'info-box'}">
         <p style="margin: 0; font-size: 14px;">
           <strong>⏰ Time is critical!</strong> Please respond as soon as possible if you're available to donate.
-          Your donation can save lives!
+          ${isDisaster ? '<br><strong style="color: #dc2626;">During disaster mode, every second counts. Multiple patients need your help!</strong>' : 'Your donation can save lives!'}
         </p>
       </div>
       
+      ${isDisaster ? `
+      <div style="background: #fef2f2; border: 2px solid #dc2626; padding: 15px; margin: 20px 0; border-radius: 8px;">
+        <p style="margin: 0; font-size: 14px; color: #7f1d1d; font-weight: 600;">
+          ⚠️ DISASTER MODE INFORMATION:
+        </p>
+        <ul style="margin: 10px 0 0 0; padding-left: 20px; color: #991b1b; font-size: 13px;">
+          <li>All donation cooldown periods are suspended</li>
+          <li>Priority processing for all donors</li>
+          <li>Emergency protocols are active</li>
+          <li>Multiple casualties require immediate blood supply</li>
+        </ul>
+      </div>
+      ` : ''}
+      
       <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
         If you're unable to donate, please consider sharing this request with friends or family who might be able to help.
+        ${isDisaster ? '<strong style="color: #dc2626;"> During this emergency, every donor counts!</strong>' : ''}
+      </p>
+      
+      <p style="color: #111827; font-size: 15px; margin-top: 20px; text-align: center; font-weight: 600;">
+        Thank you for being a lifesaver! 💝
       </p>
     </div>
     
@@ -220,6 +331,11 @@ exports.bloodRequestTemplate = (data) => {
       <p style="margin: 0; font-size: 12px;">
         You received this email because you're registered as a blood donor in our system.
       </p>
+      ${isDisaster ? `
+      <p style="margin: 10px 0 0 0; font-size: 11px; color: #fca5a5;">
+        This is an emergency disaster alert. Please respond immediately if possible.
+      </p>
+      ` : ''}
     </div>
   </div>
 </body>

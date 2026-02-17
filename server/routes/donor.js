@@ -112,6 +112,13 @@ router.get(
 );
 
 router.get(
+  "/disaster-status",
+  auth,
+  roleCheck("donor"),
+  donorController.getDisasterStatus
+);
+
+router.get(
   "/nearby-bloodbanks",
   auth,
   roleCheck("donor"),

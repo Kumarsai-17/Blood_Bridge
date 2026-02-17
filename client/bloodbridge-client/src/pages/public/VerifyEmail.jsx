@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { Button, Input, Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/core'
 import { Mail, AlertCircle, CheckCircle, Loader2 } from 'lucide-react'
 import api from '../../services/api'
-import { useAuth } from '../../context/AuthContext'
 
 const VerifyEmail = () => {
   const [otp, setOtp] = useState('')
@@ -14,7 +13,6 @@ const VerifyEmail = () => {
   const [countdown, setCountdown] = useState(0)
   const navigate = useNavigate()
   const location = useLocation()
-  const { login } = useAuth()
 
   useEffect(() => {
     // Get email from location state
@@ -54,33 +52,44 @@ const VerifyEmail = () => {
       
       console.log('✅ Email verified:', verifyResponse.data)
       
-      // Auto-login after verification
-      const password = location.state?.password
-      if (password) {
+      // Check if backend provided auto-login token (for donors)
+      if (verifyResponse.data.autoLogin && verifyResponse.data.token) {
+        console.log('🔐 Auto-login token received, logging in...')
+        
+        // Store token and set up authentication
+        const { token, role } = verifyResponse.data
+        localStorage.setItem('token', token)
+        localStorage.setItem('role', role)
+        
+        // Set authorization header
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+        
+        // Fetch user profile and update auth context
         try {
-          console.log('🔐 Attempting auto-login...')
+          const userResponse = await api.get('/user/profile')
+          localStorage.setItem('user', JSON.stringify(userResponse.data))
           
-          // Use the login function from AuthContext
-          const loginResult = await login(email, password)
+          console.log('✅ Auto-login successful, redirecting to dashboard...')
           
-          if (loginResult.success) {
-            console.log('✅ Auto-login successful, redirecting to dashboard...')
-            
-            // Small delay to show the success message
-            setTimeout(() => {
-              navigate('/donor/dashboard', { replace: true })
-            }, 500)
-          } else {
-            console.error('❌ Auto-login failed:', loginResult.message)
-            navigate('/login', { replace: true })
-          }
-        } catch (loginError) {
-          console.error('❌ Auto-login error:', loginError)
+          // Redirect to donor dashboard
+          setTimeout(() => {
+            navigate('/donor/dashboard', { replace: true })
+            window.location.reload() // Reload to update auth context
+          }, 500)
+        } catch (profileError) {
+          console.error('❌ Failed to fetch profile:', profileError)
           navigate('/login', { replace: true })
         }
       } else {
-        console.log('⚠️ No password in state, redirecting to login')
-        navigate('/login', { replace: true })
+        // For other roles (hospital, bloodbank), redirect to login
+        console.log('⚠️ No auto-login token, redirecting to login')
+        navigate('/login', { 
+          replace: true,
+          state: { 
+            message: 'Email verified successfully! Please login to continue.',
+            email: email 
+          }
+        })
       }
     } catch (err) {
       const errorMsg = err.response?.data?.message || 'Verification failed'

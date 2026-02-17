@@ -93,12 +93,58 @@ exports.respondToRequest = async (req, res) => {
       }
     }
 
+    // Check if request exists and get current state
+    const existingRequest = await BloodRequest.findById(requestId).populate("hospital", "name location phone");
+    
+    if (!existingRequest) {
+      return res.status(404).json({
+        message: "Request not found"
+      });
+    }
+
+    // Check if request is still pending
+    if (existingRequest.status !== "pending") {
+      return res.status(400).json({
+        message: "This request is no longer available"
+      });
+    }
+
+    // Check if donor has already responded
+    const alreadyResponded = existingRequest.responses.some(
+      r => r.donor.toString() === req.user.id
+    );
+
+    if (alreadyResponded) {
+      return res.status(400).json({
+        message: "You have already responded to this request"
+      });
+    }
+
+    // Check if another donor has already accepted this request
+    if (response === "accepted") {
+      const alreadyAccepted = existingRequest.responses.some(
+        r => r.status === "accepted"
+      );
+
+      if (alreadyAccepted) {
+        return res.status(400).json({
+          message: "This request has already been accepted by another donor",
+          code: "ALREADY_ACCEPTED"
+        });
+      }
+    }
+
     // Use atomic operation to prevent race condition
     const updateQuery = {
       _id: requestId,
       status: "pending",
       "responses.donor": { $ne: req.user.id } // Ensure donor hasn't already responded
     };
+
+    // For accepted responses, also ensure no other accepted responses exist
+    if (response === "accepted") {
+      updateQuery["responses.status"] = { $ne: "accepted" };
+    }
 
     const updateOperation = {
       $push: {
@@ -124,6 +170,17 @@ exports.respondToRequest = async (req, res) => {
     ).populate("hospital", "name location phone");
 
     if (!request) {
+      // Double-check if it was accepted by another donor in the meantime
+      const recheckRequest = await BloodRequest.findById(requestId);
+      const nowAccepted = recheckRequest?.responses.some(r => r.status === "accepted");
+      
+      if (nowAccepted) {
+        return res.status(400).json({
+          message: "This request has already been accepted by another donor",
+          code: "ALREADY_ACCEPTED"
+        });
+      }
+      
       return res.status(400).json({
         message: "Request not available or you have already responded"
       });
@@ -1663,3 +1720,25 @@ exports.seedRealLocations = async (req, res) => {
 
 
 
+
+/**
+ * GET DISASTER STATUS
+ */
+exports.getDisasterStatus = async (req, res) => {
+  try {
+    const disaster = require("../config/disaster");
+    
+    res.json({
+      success: true,
+      data: {
+        disasterMode: disaster.isEnabled()
+      }
+    });
+  } catch (error) {
+    console.error("GET DISASTER STATUS ERROR:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+  }
+};

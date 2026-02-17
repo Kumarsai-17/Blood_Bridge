@@ -1,18 +1,46 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import {
     Menu, X, LogOut, Settings,
     LayoutDashboard, Users, Activity, FileText,
-    ShieldCheck, Shield, Droplet, Map, History, Truck, Database, Building2, Search, Bell, User, Lock, ChevronDown, Home
+    ShieldCheck, Shield, Droplet, Map, History, Truck, Database, Building2, Search, Bell, User, Lock, ChevronDown, Home, AlertTriangle
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { Button } from '../components/ui/core'
+import api from '../services/api'
 
 const DashboardLayout = () => {
     const { user, logout } = useAuth()
     const [sidebarOpen, setSidebarOpen] = useState(false)
     const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
+    const [disasterMode, setDisasterMode] = useState(false)
     const navigate = useNavigate()
+
+    // Fetch disaster status
+    useEffect(() => {
+        const fetchDisasterStatus = async () => {
+            try {
+                let endpoint = '/donor/disaster-status'
+                if (user?.role === 'hospital') {
+                    endpoint = '/hospital/disaster-status'
+                } else if (user?.role === 'admin' || user?.role === 'super_admin') {
+                    endpoint = '/admin/disaster-status'
+                }
+                
+                const response = await api.get(endpoint)
+                setDisasterMode(response.data.data.disasterMode)
+            } catch (error) {
+                console.error('Failed to fetch disaster status:', error)
+            }
+        }
+
+        if (user) {
+            fetchDisasterStatus()
+            // Poll every 30 seconds to check for disaster mode changes
+            const interval = setInterval(fetchDisasterStatus, 30000)
+            return () => clearInterval(interval)
+        }
+    }, [user])
 
     // Dynamic Navigation based on Role (Desktop - no My Profile)
     const getNavItems = (isMobile = false) => {
@@ -77,35 +105,28 @@ const DashboardLayout = () => {
 
     return (
         <div className="min-h-screen bg-gray-50 flex">
-            {/* Mobile Overlay */}
-            {sidebarOpen && (
-                <div 
-                    className="fixed inset-0 bg-black/50 z-40 md:hidden"
-                    onClick={() => setSidebarOpen(false)}
-                ></div>
-            )}
-
             {/* Sidebar */}
             <aside
-                className={`w-72 bg-white border-r border-gray-200 shadow-lg transition-all duration-300 ease-in-out flex-shrink-0 md:relative fixed inset-y-0 left-0 z-50 ${
-                    sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+                className={`w-72 bg-white border-r border-gray-200 shadow-lg transition-transform duration-300 ease-in-out flex-shrink-0 fixed inset-y-0 left-0 z-50 ${
+                    sidebarOpen ? 'translate-x-0' : '-translate-x-full'
                 }`}
             >
                 <div className="flex flex-col h-full">
-                    {/* Brand Header */}
-                    <div className="h-20 flex items-center px-6 border-b border-gray-200">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-red-100 rounded-lg">
-                                <Droplet className="w-5 h-5 text-red-600" />
+                    {/* Brand Header with Close Button */}
+                    <div className="h-20 flex items-center justify-between px-6 border-b border-gray-200">
+                        <div className="flex items-center gap-3 transition-all duration-300">
+                            <div className="p-2 bg-red-100 rounded-lg transition-all duration-300 hover:bg-red-200 hover:scale-110">
+                                <Droplet className="w-5 h-5 text-red-600 transition-transform duration-300" />
                             </div>
-                            <div>
-                                <h1 className="text-lg font-bold text-gray-900">BloodBridge</h1>
-                                <p className="text-xs text-gray-500">Save Lives Together</p>
+                            <div className="transition-all duration-300">
+                                <h1 className="text-lg font-bold text-gray-900 transition-colors duration-300">BloodBridge</h1>
+                                <p className="text-xs text-gray-500 transition-colors duration-300">Save Lives Together</p>
                             </div>
                         </div>
+                        {/* X button - always visible with animation */}
                         <button
                             onClick={() => setSidebarOpen(false)}
-                            className="ml-auto p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors md:hidden"
+                            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200 hover:rotate-90 active:scale-95"
                         >
                             <X className="w-5 h-5" />
                         </button>
@@ -190,26 +211,30 @@ const DashboardLayout = () => {
                 {/* Top Navbar */}
                 <header className="h-20 bg-white sticky top-0 z-30 flex items-center justify-between px-6 border-b border-gray-200 shadow-sm">
                     <div className="flex items-center gap-4">
-                        <button
-                            onClick={() => setSidebarOpen(!sidebarOpen)}
-                            className="p-2 -ml-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-                        >
-                            <Menu className="w-6 h-6" />
-                        </button>
-
-                        {/* BloodBridge Logo - Hidden when sidebar is open on mobile */}
-                        <button
-                            onClick={() => navigate('/')}
-                            className={`flex items-center gap-3 hover:opacity-80 transition-opacity ${sidebarOpen ? 'hidden md:flex' : 'flex'}`}
-                        >
-                            <div className="p-2 bg-red-100 rounded-lg">
-                                <Droplet className="w-5 h-5 text-red-600" />
-                            </div>
-                            <div className="text-left">
-                                <h1 className="text-lg font-bold text-gray-900">BloodBridge</h1>
-                                <p className="text-xs text-gray-500">Save Lives Together</p>
-                            </div>
-                        </button>
+                        {/* Show hamburger + logo when sidebar is closed */}
+                        {!sidebarOpen && (
+                            <>
+                                <button
+                                    onClick={() => setSidebarOpen(true)}
+                                    className="p-2 -ml-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
+                                >
+                                    <Menu className="w-6 h-6" />
+                                </button>
+                                
+                                <button
+                                    onClick={() => navigate('/')}
+                                    className="flex items-center gap-3 hover:opacity-80 transition-all duration-200 hover:scale-105 active:scale-95"
+                                >
+                                    <div className="p-2 bg-red-100 rounded-lg transition-transform duration-200">
+                                        <Droplet className="w-5 h-5 text-red-600" />
+                                    </div>
+                                    <div className="text-left">
+                                        <h1 className="text-lg font-bold text-gray-900">BloodBridge</h1>
+                                        <p className="text-xs text-gray-500">Save Lives Together</p>
+                                    </div>
+                                </button>
+                            </>
+                        )}
                     </div>
 
                     <div className="flex items-center gap-4">
@@ -284,6 +309,19 @@ const DashboardLayout = () => {
                         </div>
                     </div>
                 </header>
+
+                {/* Disaster Mode Banner */}
+                {disasterMode && (
+                    <div className="bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 shadow-lg animate-pulse-slow">
+                        <div className="max-w-7xl mx-auto flex items-center justify-center gap-3">
+                            <AlertTriangle className="w-5 h-5 flex-shrink-0" />
+                            <p className="text-sm md:text-base font-semibold text-center">
+                                🚨 DISASTER MODE ACTIVE - Emergency protocols enabled. All cooldowns suspended.
+                            </p>
+                            <AlertTriangle className="w-5 h-5 flex-shrink-0" />
+                        </div>
+                    </div>
+                )}
 
                 {/* Page Content */}
                 <main className="flex-1 overflow-y-auto p-6 md:p-8">

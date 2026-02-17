@@ -756,6 +756,25 @@ exports.verifyEmail = async (req, res) => {
 
     console.log('✅ Email verified successfully:', email);
 
+    // For donors, generate token and auto-login
+    if (user.role === 'donor') {
+      const token = jwt.sign(
+        { id: user._id, role: user.role },
+        process.env.JWT_SECRET,
+        { expiresIn: "1d" }
+      );
+
+      return res.json({
+        success: true,
+        message: "Email verified successfully. Welcome to BloodBridge!",
+        role: user.role,
+        isApproved: user.isApproved,
+        token: token,
+        autoLogin: true
+      });
+    }
+
+    // For other roles (hospital, bloodbank), don't auto-login
     res.json({
       success: true,
       message: "Email verified successfully",

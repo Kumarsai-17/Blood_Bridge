@@ -8,22 +8,33 @@ require('dotenv').config({ path: path.join(__dirname, '../.env') });
 const createTransporter = () => {
   try {
     console.log('📧 Creating email transporter...');
-    console.log('Email:', process.env.SYSTEM_EMAIL);
-    console.log('Password configured:', !!process.env.SYSTEM_EMAIL_PASS);
+    console.log('Email:', process.env.EMAIL_USER);
+    console.log('Password configured:', !!process.env.EMAIL_PASS);
+    console.log('Email Host:', process.env.EMAIL_HOST);
+    console.log('Email Port:', process.env.EMAIL_PORT);
     
-    if (!process.env.SYSTEM_EMAIL || !process.env.SYSTEM_EMAIL_PASS) {
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
       throw new Error('Email credentials not configured in environment variables');
     }
     
+    const port = parseInt(process.env.EMAIL_PORT) || 465;
+    const secure = port === 465;
+    
     return nodemailer.createTransport({
-      service: "gmail",
+      host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+      port: port,
+      secure: secure,
       auth: {
-        user: process.env.SYSTEM_EMAIL,
-        pass: process.env.SYSTEM_EMAIL_PASS
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
       },
       tls: {
-        rejectUnauthorized: false
-      }
+        rejectUnauthorized: false,
+        minVersion: 'TLSv1.2'
+      },
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 10000
     });
   } catch (error) {
     console.error('❌ Failed to create email transporter:', error.message);
@@ -53,7 +64,7 @@ exports.sendNotification = async (toEmail, subject, message, html = null) => {
     }
 
     const mailOptions = {
-      from: `"BloodBridge Alerts" <${process.env.SYSTEM_EMAIL}>`,
+      from: process.env.EMAIL_FROM || `"BloodBridge Alerts" <${process.env.EMAIL_USER}>`,
       to: toEmail,
       subject: subject,
       text: message

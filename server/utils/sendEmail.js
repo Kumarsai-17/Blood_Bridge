@@ -19,7 +19,7 @@ const createGmailTransporter = () => {
       minVersion: 'TLSv1.2'
     },
     connectionTimeout: 10000, // 10 seconds
-    greetingTimeout: 10000,
+    greetingTimeout: 10000,     
     socketTimeout: 10000,
     debug: process.env.NODE_ENV === 'development',
     logger: process.env.NODE_ENV === 'development'

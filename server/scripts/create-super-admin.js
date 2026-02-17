@@ -27,12 +27,13 @@ const createSuperAdmin = async () => {
       name: 'Super Admin',
       email: 'superadmin@bloodbridge.com',
       phone: '+1-234-567-8900',
-      password: 'admin123', // Change this to a secure password
+      password: 'SuperAdmin@123', // Secure password
       role: 'super_admin',
       region: null, // Super admin has no region restriction
       isApproved: true,
       emailVerified: true,
       mustChangePassword: false
+      // No location field - super admin doesn't need location
     };
 
     // Hash password

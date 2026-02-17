@@ -18,11 +18,15 @@ services:
         value: bloodbridge_secret_key
       - key: FRONTEND_URL
         value: https://blood-bridge-mu.vercel.app
-      - key: SYSTEM_EMAIL
+      - key: EMAIL_HOST
+        value: smtp.gmail.com
+      - key: EMAIL_PORT
+        value: 587
+      - key: EMAIL_SERVICE
+        value: gmail
+      - key: EMAIL_USER
         value: paidikumarsai1@gmail.com
-      - key: SYSTEM_EMAIL_PASS
+      - key: EMAIL_PASS
         value: uiwadsdxmsxmsnpn
-      - key: RESEND_API_KEY
-        value: re_gzCrkDqz_KmX9MJhUswauutaNyFpNoNxE
-      - key: RESEND_FROM_EMAIL
-        value: onboarding@resend.dev
+      - key: EMAIL_FROM
+        value: BloodBridge <paidikumarsai1@gmail.com>

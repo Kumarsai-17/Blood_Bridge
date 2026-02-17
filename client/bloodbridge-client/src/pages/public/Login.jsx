@@ -208,9 +208,6 @@ const Login = () => {
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t border-gray-200" />
           </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="bg-white px-4 text-gray-500">New to BloodBridge?</span>
-          </div>
         </div>
       </CardContent>
       <CardFooter className="flex flex-col gap-4 bg-gray-50 border-t border-gray-100 p-6">

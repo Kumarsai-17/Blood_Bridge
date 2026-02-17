@@ -175,40 +175,46 @@ const Home = () => {
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4 px-4">How It Works</h2>
             <p className="text-base sm:text-lg lg:text-xl text-gray-600 px-4">A streamlined process connecting those who need blood with those who can donate</p>
           </div>
-          <div className="grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-3 relative">
+          <div className="grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-3 relative pt-6">
             {/* Connection Lines */}
             <div className="hidden md:block absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-blue-200 via-red-200 to-green-200 transform -translate-y-1/2 z-0"></div>
             
             <Card className="relative z-10 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border-2 border-blue-200">
-              <CardContent className="p-6 sm:p-8 text-center">
-                <div className="inline-flex p-4 sm:p-5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full mb-4 sm:mb-6 shadow-lg">
-                  <Building2 className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+              <CardContent className="p-8 sm:p-10 text-center">
+                <div className="relative inline-block mb-6 sm:mb-8">
+                  <div className="inline-flex p-6 sm:p-7 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full shadow-lg">
+                    <Building2 className="w-12 h-12 sm:w-14 sm:h-14 text-white" />
+                  </div>
+                  <div className="absolute -top-2 -right-2 bg-blue-600 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold shadow-lg text-lg border-4 border-white">1</div>
                 </div>
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold shadow-lg">1</div>
-                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 sm:mb-3">Hospitals Request</h3>
-                <p className="text-sm sm:text-base text-gray-600">Medical facilities post blood requirements with specific blood types and urgency levels</p>
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">Hospitals Request</h3>
+                <p className="text-base sm:text-lg text-gray-600">Medical facilities post blood requirements with specific blood types and urgency levels</p>
               </CardContent>
             </Card>
 
             <Card className="relative z-10 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border-2 border-red-200">
-              <CardContent className="p-6 sm:p-8 text-center">
-                <div className="inline-flex p-4 sm:p-5 bg-gradient-to-br from-red-500 to-red-600 rounded-full mb-4 sm:mb-6 shadow-lg">
-                  <Heart className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+              <CardContent className="p-8 sm:p-10 text-center">
+                <div className="relative inline-block mb-6 sm:mb-8">
+                  <div className="inline-flex p-6 sm:p-7 bg-gradient-to-br from-red-500 to-red-600 rounded-full shadow-lg">
+                    <Heart className="w-12 h-12 sm:w-14 sm:h-14 text-white" />
+                  </div>
+                  <div className="absolute -top-2 -right-2 bg-red-600 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold shadow-lg text-lg border-4 border-white">2</div>
                 </div>
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold shadow-lg">2</div>
-                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 sm:mb-3">Donors Respond</h3>
-                <p className="text-sm sm:text-base text-gray-600">Registered donors receive notifications and can accept requests that match their blood type</p>
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">Donors Respond</h3>
+                <p className="text-base sm:text-lg text-gray-600">Registered donors receive notifications and can accept requests that match their blood type</p>
               </CardContent>
             </Card>
 
             <Card className="relative z-10 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border-2 border-green-200">
-              <CardContent className="p-6 sm:p-8 text-center">
-                <div className="inline-flex p-4 sm:p-5 bg-gradient-to-br from-green-500 to-green-600 rounded-full mb-4 sm:mb-6 shadow-lg">
-                  <CheckCircle className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+              <CardContent className="p-8 sm:p-10 text-center">
+                <div className="relative inline-block mb-6 sm:mb-8">
+                  <div className="inline-flex p-6 sm:p-7 bg-gradient-to-br from-green-500 to-green-600 rounded-full shadow-lg">
+                    <CheckCircle className="w-12 h-12 sm:w-14 sm:h-14 text-white" />
+                  </div>
+                  <div className="absolute -top-2 -right-2 bg-green-600 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold shadow-lg text-lg border-4 border-white">3</div>
                 </div>
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-green-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold shadow-lg">3</div>
-                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 sm:mb-3">Lives Saved</h3>
-                <p className="text-sm sm:text-base text-gray-600">Donors visit hospitals to complete donations, helping patients in need</p>
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">Lives Saved</h3>
+                <p className="text-base sm:text-lg text-gray-600">Donors visit hospitals to complete donations, helping patients in need</p>
               </CardContent>
             </Card>
           </div>
@@ -278,17 +284,12 @@ const Home = () => {
       {/* Footer */}
       <footer className="bg-gradient-to-br from-gray-900 to-gray-800 border-t border-gray-700">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 py-8 sm:py-12 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 sm:gap-6">
+          <div className="flex flex-col md:flex-row justify-center items-center gap-4 sm:gap-6">
             <div className="flex items-center gap-2 sm:gap-3">
               <div className="p-2 bg-red-100 rounded-lg">
                 <Droplet className="w-4 h-4 sm:w-5 sm:h-5 text-red-600" />
               </div>
               <span className="text-lg sm:text-xl font-bold text-white">BloodBridge</span>
-            </div>
-            <div className="flex flex-wrap justify-center gap-4 sm:gap-8">
-              <Link to="#" className="text-xs sm:text-sm text-gray-400 hover:text-white transition-colors">Privacy Policy</Link>
-              <Link to="#" className="text-xs sm:text-sm text-gray-400 hover:text-white transition-colors">Terms of Service</Link>
-              <Link to="#" className="text-xs sm:text-sm text-gray-400 hover:text-white transition-colors">Contact</Link>
             </div>
           </div>
           <div className="mt-6 sm:mt-8 border-t border-gray-700 pt-6 sm:pt-8">

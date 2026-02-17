@@ -15,8 +15,20 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 })
 
-// Custom marker icons with better design
-const createCustomIcon = (color, iconSvg, size = 40) => {
+// Custom marker icons with SVG for better design
+const createCustomIcon = (color, type, size = 45) => {
+  const icons = {
+    hospital: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="${size * 0.5}px" height="${size * 0.5}px">
+      <path d="M19 3H5c-1.1 0-1.99.9-1.99 2L3 19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1 11h-4v4h-4v-4H6v-4h4V6h4v4h4v4z"/>
+    </svg>`,
+    bloodbank: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="${size * 0.5}px" height="${size * 0.5}px">
+      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+    </svg>`,
+    user: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="${size * 0.5}px" height="${size * 0.5}px">
+      <circle cx="12" cy="12" r="8"/>
+    </svg>`
+  }
+  
   return L.divIcon({
     className: 'custom-marker',
     html: `
@@ -25,16 +37,16 @@ const createCustomIcon = (color, iconSvg, size = 40) => {
         width: ${size}px;
         height: ${size}px;
         border-radius: 50% 50% 50% 0;
-        border: 3px solid white;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        border: 4px solid white;
+        box-shadow: 0 6px 16px rgba(0,0,0,0.35);
         display: flex;
         align-items: center;
         justify-content: center;
         transform: rotate(-45deg);
         position: relative;
       ">
-        <div style="transform: rotate(45deg); font-size: ${size * 0.5}px;">
-          ${iconSvg}
+        <div style="transform: rotate(45deg);">
+          ${icons[type]}
         </div>
       </div>
     `,
@@ -44,9 +56,9 @@ const createCustomIcon = (color, iconSvg, size = 40) => {
   })
 }
 
-const userIcon = createCustomIcon('#3B82F6', '📍', 40)
-const hospitalIcon = createCustomIcon('#6366F1', '🏥', 45)
-const bloodBankIcon = createCustomIcon('#EF4444', '💉', 45)
+const userIcon = createCustomIcon('#3B82F6', 'user', 40)
+const hospitalIcon = createCustomIcon('#4F46E5', 'hospital', 50)
+const bloodBankIcon = createCustomIcon('#DC2626', 'bloodbank', 50)
 
 // Component to handle map updates
 const MapController = ({ center, zoom }) => {
@@ -198,7 +210,7 @@ const MapView = () => {
   }
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
+    <div className="h-screen flex flex-col">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 px-3 sm:px-6 py-3 sm:py-4 flex-shrink-0">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -228,15 +240,19 @@ const MapView = () => {
         </div>
       </div>
 
-      {/* Main Content - Mobile: Stacked, Desktop: Side by Side */}
+      {/* Main Content - Mobile: Stacked with scrolling, Desktop: Side by Side */}
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-        {/* Map Section - Top on mobile (50% height), Left on desktop */}
-        <div className="w-full md:w-1/2 h-1/2 md:h-full relative flex-shrink-0">
+        {/* Map Section - Fixed height on mobile, flexible on desktop */}
+        <div className="w-full md:w-1/2 h-64 md:h-full relative flex-shrink-0 isolate">
           <MapContainer
             center={mapCenter}
             zoom={mapZoom}
             style={{ height: '100%', width: '100%' }}
             scrollWheelZoom={true}
+            dragging={true}
+            touchZoom={true}
+            doubleClickZoom={true}
+            zoomControl={true}
             className="z-0"
           >
             <TileLayer
@@ -306,18 +322,18 @@ const MapView = () => {
             })}
           </MapContainer>
           
-          {/* Map Legend - Mobile optimized */}
-          <div className="absolute bottom-3 left-3 md:bottom-6 md:left-6 bg-white/95 backdrop-blur-sm rounded-xl shadow-lg p-2 sm:p-4 space-y-1 sm:space-y-2 z-[1000] text-xs sm:text-sm border border-gray-200">
+          {/* Map Legend - Inside map container */}
+          <div className="absolute bottom-3 left-3 md:bottom-6 md:left-6 bg-white/95 backdrop-blur-sm rounded-xl shadow-lg p-2 sm:p-4 space-y-1 sm:space-y-2 z-10 text-xs sm:text-sm border border-gray-200">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 sm:w-4 sm:h-4 bg-blue-600 rounded-full flex-shrink-0 shadow-sm"></div>
               <span className="font-semibold text-gray-800 truncate">You</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 sm:w-4 sm:h-4 bg-indigo-600 rounded-full flex-shrink-0 shadow-sm"></div>
+              <div className="w-3 h-3 sm:w-4 sm:h-4 bg-indigo-700 rounded-full flex-shrink-0 shadow-sm"></div>
               <span className="font-semibold text-gray-800 truncate">Hospitals ({hospitals.length})</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 sm:w-4 sm:h-4 bg-red-600 rounded-full flex-shrink-0 shadow-sm"></div>
+              <div className="w-3 h-3 sm:w-4 sm:h-4 bg-red-700 rounded-full flex-shrink-0 shadow-sm"></div>
               <span className="font-semibold text-gray-800 truncate">Blood Banks ({bloodBanks.length})</span>
             </div>
           </div>

@@ -257,6 +257,8 @@ exports.login = async (req, res) => {
     user.otpExpiry = Date.now() + 10 * 60 * 1000; // 10 minutes
     await user.save();
 
+    console.log('📧 Attempting to send OTP email to:', user.email);
+
     // Send OTP email
     const emailResult = await sendEmail(
       user.email,
@@ -275,17 +277,24 @@ Best regards,
 BloodBridge Team`
     );
 
+    console.log('📧 Email send result:', emailResult);
+
     if (!emailResult.success) {
       // Clear the OTP from database if email fails
       user.otp = null;
       user.otpExpiry = null;
       await user.save();
       
+      console.error('❌ Email send failed:', emailResult.error);
+      
       return res.status(500).json({
         success: false,
-        message: "Failed to send OTP email. Please configure email service properly."
+        message: "Failed to send OTP email. Please try again or contact support.",
+        error: emailResult.error || 'Email service error'
       });
     }
+
+    console.log('✅ OTP sent successfully to:', user.email);
 
     res.json({
       success: true,
@@ -296,7 +305,11 @@ BloodBridge Team`
     });
   } catch (error) {
     console.error('❌ LOGIN ERROR:', error);
-    res.status(500).json({ message: "Server error" });
+    console.error('Error stack:', error.stack);
+    res.status(500).json({ 
+      message: "Server error",
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
 

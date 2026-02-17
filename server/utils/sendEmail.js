@@ -1,5 +1,5 @@
 const nodemailer = require("nodemailer");
-const sgMail = require('@sendgrid/mail');
+const { Resend } = require('resend');
 
 // Gmail SMTP transporter
 const createGmailTransporter = () => {
@@ -20,27 +20,26 @@ const createGmailTransporter = () => {
 module.exports = async (to, subject, text, html = null) => {
   try {
     console.log('🔍 Email Config Check:', {
-      hasSendGrid: !!process.env.SENDGRID_API_KEY,
+      hasResend: !!process.env.RESEND_API_KEY,
       hasGmail: !!(process.env.SYSTEM_EMAIL && process.env.SYSTEM_EMAIL_PASS),
       recipient: to
     });
 
-    // Priority 1: SendGrid (works on all platforms, 100 emails/day free)
-    if (process.env.SENDGRID_API_KEY) {
-      console.log('📧 Sending via SendGrid');
-      sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+    // Priority 1: Resend (works on all platforms, 100 emails/day free)
+    if (process.env.RESEND_API_KEY) {
+      console.log('📧 Sending via Resend');
+      const resend = new Resend(process.env.RESEND_API_KEY);
       
-      const msg = {
+      const result = await resend.emails.send({
+        from: process.env.RESEND_FROM_EMAIL || 'BloodBridge <onboarding@resend.dev>',
         to: to,
-        from: process.env.SENDGRID_FROM_EMAIL || process.env.SYSTEM_EMAIL,
         subject: subject,
         text: text,
-        html: html || text
-      };
+        html: html || `<pre>${text}</pre>`
+      });
       
-      const result = await sgMail.send(msg);
-      console.log('✅ Email sent via SendGrid');
-      return { success: true, messageId: result[0].headers['x-message-id'] };
+      console.log('✅ Email sent via Resend:', result);
+      return { success: true, messageId: result.id };
     }
 
     // Priority 2: Gmail SMTP (works locally only)
@@ -65,6 +64,7 @@ module.exports = async (to, subject, text, html = null) => {
 
   } catch (error) {
     console.error("SEND EMAIL ERROR:", error.message);
+    console.error("Full error:", error);
     return { success: false, error: error.message };
   }
 };

@@ -59,34 +59,50 @@ const allowedOrigins = [
 
 console.log('🔒 CORS Allowed Origins:', allowedOrigins);
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) return callback(null, true);
-      
-      // TEMPORARY: Allow all Vercel deployments
-      if (origin && origin.includes('vercel.app')) {
-        return callback(null, true);
-      }
-      
-      if (allowedOrigins.indexOf(origin) !== -1) {
-        callback(null, true);
-      } else {
-        console.log('❌ CORS blocked origin:', origin);
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-    preflightContinue: false,
-    optionsSuccessStatus: 204
-  })
-);
+// CORS configuration
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, Postman, or curl requests)
+    if (!origin) {
+      console.log('✅ CORS: Allowing request with no origin');
+      return callback(null, true);
+    }
+    
+    // Allow all Vercel deployments (preview and production)
+    if (origin.includes('vercel.app')) {
+      console.log('✅ CORS: Allowing Vercel origin:', origin);
+      return callback(null, true);
+    }
+    
+    // Allow all Render deployments
+    if (origin.includes('onrender.com')) {
+      console.log('✅ CORS: Allowing Render origin:', origin);
+      return callback(null, true);
+    }
+    
+    // Check against allowed origins list
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      console.log('✅ CORS: Allowing whitelisted origin:', origin);
+      return callback(null, true);
+    }
+    
+    console.log('❌ CORS: Blocked origin:', origin);
+    callback(new Error('Not allowed by CORS'));
+  },
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
+  exposedHeaders: ["Content-Length", "X-Request-Id"],
+  credentials: true,
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
+  maxAge: 86400 // 24 hours
+};
 
-/* IMPORTANT: allow preflight */
-app.options("*", cors());
+// Apply CORS middleware
+app.use(cors(corsOptions));
+
+// Handle preflight requests explicitly
+app.options("*", cors(corsOptions));
 app.use(express.json());
 
 // SAFE request logger
@@ -119,7 +135,12 @@ app.get("/api/health", (req, res) => {
   res.json({
     status: "OK",
     message: "API is healthy",
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    cors: {
+      origin: req.headers.origin || 'no-origin',
+      allowedOrigins: allowedOrigins,
+      frontendUrl: process.env.FRONTEND_URL
+    }
   });
 });
 

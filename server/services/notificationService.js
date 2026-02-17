@@ -17,8 +17,8 @@ const createTransporter = () => {
       throw new Error('Email credentials not configured in environment variables');
     }
     
-    const port = parseInt(process.env.EMAIL_PORT) || 465;
-    const secure = port === 465;
+    const port = parseInt(process.env.EMAIL_PORT) || 587;
+    const secure = false; // false for port 587 (STARTTLS)
     
     return nodemailer.createTransport({
       host: process.env.EMAIL_HOST || 'smtp.gmail.com',

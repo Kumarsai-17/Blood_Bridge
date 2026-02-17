@@ -2,6 +2,7 @@ const User = require("../models/User");
 const BloodRequest = require("../models/BloodRequest");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
+const { credentialsTemplate, otpTemplate } = require("../templates/emailTemplates");
 
 // Helper function to calculate time ago
 function getTimeAgo(date) {
@@ -65,43 +66,27 @@ exports.createAdmin = async (req, res) => {
 
     await admin.save();
 
-    // Send email with credentials
+    // Send email with credentials using template
     const sendEmail = require("../utils/sendEmail");
+    
+    const htmlContent = credentialsTemplate({
+      recipientName: name,
+      email: email,
+      password: password,
+      role: 'admin',
+      loginUrl: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/login`,
+      region: region,
+      state: state,
+      city: city,
+      isResend: false
+    });
     
     const emailResult = await sendEmail(
       email,
       "🎉 Your Admin Account Has Been Created - BloodBridge",
-      `Hello ${name},
-
-Welcome to BloodBridge! Your administrator account has been created by the Super Admin.
-
-🔐 Your Login Credentials:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Email: ${email}
-Password: ${password}
-Assigned Region: ${region}
-State: ${state}
-City: ${city}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-🔗 Login here: ${process.env.FRONTEND_URL || 'http://localhost:5173'}/login
-
-⚠️ IMPORTANT: Please keep your credentials secure and do not share them with anyone.
-
-As a regional administrator for ${city}, ${state} (${region} region), you can:
-• Approve/reject hospital and blood bank registrations in your region
-• View and manage users in your region
-• Access admin dashboard and reports for your region
-• Monitor blood donation activities in your region
-
-Note: You can only access data for your assigned region.
-
-If you have any questions or need assistance, please contact the Super Admin.
-
-Welcome to the team!
-
-Best regards,
-BloodBridge Team`
+      `Your admin account has been created. Email: ${email}, Password: ${password}`,
+      htmlContent,
+      'general'
     );
 
     console.log("✅ ADMIN CREATED");
@@ -362,69 +347,40 @@ exports.approveUser = async (req, res) => {
 
     await user.save();
 
-    // Send email with credentials
+    // Send email with credentials using template
     const sendEmail = require("../utils/sendEmail");
     const roleLabel = user.role === 'hospital' ? 'Hospital' : 'Blood Bank';
     
-    let emailBody;
+    let htmlContent;
     if (tempPassword) {
       // User didn't have password, we generated one
-      emailBody = `Hello ${user.name},
-
-Great news! Your ${roleLabel} registration has been approved by our admin team.
-
-🔐 Your Login Credentials:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Email: ${user.email}
-Temporary Password: ${tempPassword}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-🔗 Login here: ${process.env.FRONTEND_URL || 'http://localhost:5173'}/login
-
-⚠️ IMPORTANT: For security reasons, you will be required to change your password on first login.
-
-📍 Your registered location: ${user.location.lat.toFixed(4)}, ${user.location.lng.toFixed(4)}
-
-You can now:
-${user.role === 'hospital' ? '• Create blood requests\n• View nearby donors\n• Track donation responses' : '• Manage blood inventory\n• View blood requests\n• Connect with donors'}
-
-If you have any questions or need assistance, please contact our support team.
-
-Welcome to BloodBridge!
-
-Best regards,
-BloodBridge Team`;
+      htmlContent = credentialsTemplate({
+        recipientName: user.name,
+        email: user.email,
+        password: tempPassword,
+        role: user.role,
+        loginUrl: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/login`,
+        isResend: false,
+        additionalInfo: 'For security reasons, you will be required to change your password on first login.'
+      });
     } else {
       // User already had password from registration
-      emailBody = `Hello ${user.name},
-
-Great news! Your ${roleLabel} registration has been approved by our admin team.
-
-🔐 Login Information:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Email: ${user.email}
-Password: Use the password you provided during registration
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-🔗 Login here: ${process.env.FRONTEND_URL || 'http://localhost:5173'}/login
-
-📍 Your registered location: ${user.location.lat.toFixed(4)}, ${user.location.lng.toFixed(4)}
-
-You can now:
-${user.role === 'hospital' ? '• Create blood requests\n• View nearby donors\n• Track donation responses' : '• Manage blood inventory\n• View blood requests\n• Connect with donors'}
-
-If you have any questions or need assistance, please contact our support team.
-
-Welcome to BloodBridge!
-
-Best regards,
-BloodBridge Team`;
+      htmlContent = credentialsTemplate({
+        recipientName: user.name,
+        email: user.email,
+        password: 'Use the password you provided during registration',
+        role: user.role,
+        loginUrl: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/login`,
+        isResend: false
+      });
     }
     
     await sendEmail(
       user.email,
       `🎉 Your ${roleLabel} Account Has Been Approved - BloodBridge`,
-      emailBody
+      `Your ${roleLabel} account has been approved. Email: ${user.email}`,
+      htmlContent,
+      'general'
     );
 
     console.log("✅ USER APPROVED");
@@ -876,31 +832,26 @@ exports.resendCredentials = async (req, res) => {
     user.mustChangePassword = true;
     await user.save();
 
-    // Send email with new credentials
+    // Send email with new credentials using template
     const sendEmail = require("../utils/sendEmail");
     const roleLabel = user.role === 'hospital' ? 'Hospital' : 'Blood Bank';
+    
+    const htmlContent = credentialsTemplate({
+      recipientName: user.name,
+      email: user.email,
+      password: tempPassword,
+      role: user.role,
+      loginUrl: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/login`,
+      isResend: true,
+      additionalInfo: 'If you did not request this password reset, please contact our support team immediately.'
+    });
     
     const emailResult = await sendEmail(
       user.email,
       `🔄 Your ${roleLabel} Credentials Have Been Reset - BloodBridge`,
-      `Hello ${user.name},
-
-Your ${roleLabel} account credentials have been reset by an administrator.
-
-🔐 Your New Login Credentials:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Email: ${user.email}
-New Temporary Password: ${tempPassword}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-🔗 Login here: ${process.env.FRONTEND_URL || 'http://localhost:5173'}/login
-
-⚠️ IMPORTANT: For security reasons, you will be required to change your password on first login.
-
-If you did not request this password reset, please contact our support team immediately.
-
-Best regards,
-BloodBridge Team`
+      `Your ${roleLabel} credentials have been reset. Email: ${user.email}, Password: ${tempPassword}`,
+      htmlContent,
+      'general'
     );
 
     console.log("🔄 CREDENTIALS RESENT");

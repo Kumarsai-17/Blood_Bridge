@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const generateOtp = require("../utils/generateOtp");
 const sendEmail = require("../utils/sendEmail");
 const { validatePassword } = require("../utils/passwordValidator");
+const { otpTemplate } = require("../templates/emailTemplates");
 
 /**
  * REGISTER
@@ -60,22 +61,20 @@ exports.register = async (req, res) => {
         existing.emailVerificationExpiry = Date.now() + 10 * 60 * 1000; // 10 minutes
         await existing.save();
 
-        // Resend verification email
+        // Resend verification email with template
+        const htmlContent = otpTemplate({
+          recipientName: existing.name,
+          otp: otp,
+          purpose: 'resend_verification',
+          expiryMinutes: 10
+        });
+
         await sendEmail(
           existing.email,
           "Verify Your BloodBridge Account",
-          `Hello ${existing.name},
-
-Welcome back to BloodBridge! Please verify your email address to complete your registration.
-
-Your verification code is: ${otp}
-
-⏱ This code will expire in 10 minutes.
-
-If you didn't create this account, please ignore this email.
-
-Best regards,
-BloodBridge Team`
+          `Your verification code is: ${otp}`,
+          htmlContent,
+          'otp'
         );
 
         return res.status(200).json({
@@ -139,22 +138,20 @@ BloodBridge Team`
 
     await user.save();
 
-    // Send verification email
+    // Send verification email with template
+    const htmlContent = otpTemplate({
+      recipientName: user.name,
+      otp: otp,
+      purpose: 'email_verification',
+      expiryMinutes: 10
+    });
+
     const emailResult = await sendEmail(
       user.email,
       "Verify Your BloodBridge Account",
-      `Hello ${user.name},
-
-Welcome to BloodBridge! Please verify your email address to complete your registration.
-
-Your verification code is: ${otp}
-
-⏱ This code will expire in 10 minutes.
-
-If you didn't create this account, please ignore this email.
-
-Best regards,
-BloodBridge Team`
+      `Your verification code is: ${otp}`,
+      htmlContent,
+      'otp'
     );
 
     if (!emailResult.success) {
@@ -259,22 +256,21 @@ exports.login = async (req, res) => {
 
     console.log('📧 Attempting to send OTP email to:', user.email);
 
-    // Send OTP email
+    // Send OTP email with template
+    const htmlContent = otpTemplate({
+      recipientName: user.name,
+      otp: otp,
+      purpose: 'login',
+      expiryMinutes: 10,
+      additionalInfo: 'If you did not attempt to login, please ignore this email and change your password immediately.'
+    });
+
     const emailResult = await sendEmail(
       user.email,
       "Login Verification - BloodBridge",
-      `Hello ${user.name},
-
-We received a login request for your BloodBridge account.
-
-Your One-Time Password (OTP) is: ${otp}
-
-⏱ This code will expire in 10 minutes.
-
-If you did not attempt to login, please ignore this email and change your password immediately.
-
-Best regards,
-BloodBridge Team`
+      `Your login OTP is: ${otp}`,
+      htmlContent,
+      'otp'
     );
 
     console.log('📧 Email send result:', emailResult);
@@ -432,20 +428,21 @@ exports.resendLoginOtp = async (req, res) => {
     user.otpExpiry = Date.now() + 10 * 60 * 1000; // 10 minutes
     await user.save();
 
-    // Send OTP email
+    // Send OTP email with template
+    const htmlContent = otpTemplate({
+      recipientName: user.name,
+      otp: otp,
+      purpose: 'login',
+      expiryMinutes: 10,
+      additionalInfo: 'If you did not request this, please ignore this email and change your password immediately.'
+    });
+
     const emailResult = await sendEmail(
       user.email,
       "Login Verification - BloodBridge",
-      `Hello ${user.name},
-
-Here's your new One-Time Password (OTP) for login verification: ${otp}
-
-⏱ This code will expire in 10 minutes.
-
-If you did not request this, please ignore this email and change your password immediately.
-
-Best regards,
-BloodBridge Team`
+      `Your login OTP is: ${otp}`,
+      htmlContent,
+      'otp'
     );
 
     if (!emailResult.success) {
@@ -635,7 +632,33 @@ Best regards,
 BloodBridge Team`;
     }
 
-    const emailResult = await sendEmail(user.email, emailSubject, emailBody);
+    // Send password reset OTP with template
+    let additionalInfo = '';
+    if (user.role === "hospital") {
+      additionalInfo = 'For security reasons, please ensure you\'re the authorized personnel for this hospital account. If you did not request this reset, please contact our support team immediately.';
+    } else if (user.role === "bloodbank") {
+      additionalInfo = 'As a blood bank administrator, maintaining account security is crucial. If you did not request this reset, please contact our support team immediately.';
+    } else if (user.role === "admin" || user.role === "super_admin") {
+      additionalInfo = `⚠️ SECURITY ALERT: This is an ${user.role === 'super_admin' ? 'Super Admin' : 'Admin'} account. If you did not request this reset, please contact the system administrator immediately.`;
+    } else {
+      additionalInfo = 'If you did not request this reset, please ignore this email.';
+    }
+
+    const htmlContent = otpTemplate({
+      recipientName: user.name,
+      otp: otp,
+      purpose: 'password_reset',
+      expiryMinutes: 10,
+      additionalInfo: additionalInfo
+    });
+
+    const emailResult = await sendEmail(
+      user.email, 
+      emailSubject, 
+      `Your password reset OTP is: ${otp}`,
+      htmlContent,
+      'otp'
+    );
 
     if (!emailResult.success) {
       // Clear the OTP from database if email fails

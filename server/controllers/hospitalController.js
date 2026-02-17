@@ -5,6 +5,44 @@ const BloodRequest = require("../models/BloodRequest");
 const calculateDistance = require("../utils/calculateDistance");
 const disaster = require("../config/disaster");
 const sendEmail = require("../utils/sendEmail");
+const { bloodRequestTemplate, supportRequestTemplate } = require("../templates/emailTemplates");
+
+// Add donation cancelled template
+const donationCancelledTemplate = (data) => {
+  const { donorName, bloodGroup, units, hospitalName } = data;
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: #dc2626; color: white; padding: 20px; text-align: center; }
+    .content { background: #fff; padding: 20px; }
+    .info-box { background: #f0f9ff; border-left: 4px solid #3b82f6; padding: 15px; margin: 20px 0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🩸 BloodBridge</h1>
+    </div>
+    <div class="content">
+      <h2>Hello ${donorName},</h2>
+      <div class="info-box">
+        <p>The blood donation request you accepted has been cancelled by <strong>${hospitalName}</strong>.</p>
+      </div>
+      <p><strong>Blood Group:</strong> ${bloodGroup}</p>
+      <p><strong>Units:</strong> ${units}</p>
+      <p>The hospital may have found another donor or the requirement has been fulfilled. We appreciate your willingness to donate!</p>
+      <p>Thank you for being a part of BloodBridge!</p>
+    </div>
+  </div>
+</body>
+</html>
+  `;
+};
 
 // Escalation steps ONLY (default radius comes from rules.js)
 const SEARCH_RADII = [20, 30, 40, 50];
@@ -85,36 +123,37 @@ exports.createBloodRequest = async (req, res) => {
     for (const donor of donors) {
       if (request.notifiedDonors.includes(donor._id)) continue;
 
-      const emailContent = `Hello ${donor.name},
+      // Calculate distance for this donor
+      let donorDistance = null;
+      if (donor.location && donor.location.lat && donor.location.lng) {
+        donorDistance = calculateDistance(
+          hospital.location.lat,
+          hospital.location.lng,
+          donor.location.lat,
+          donor.location.lng
+        ).toFixed(1);
+      }
 
-🚨 URGENT BLOOD REQUEST 🚨
-
-A nearby hospital needs your help!
-
-🩸 Blood Group Needed: ${bloodGroup}
-🏥 Hospital: ${hospital.name}
-📦 Units Required: ${units}
-⚠️ Urgency Level: ${urgency.toUpperCase()}
-📍 Distance: Within ${EMAIL_RADIUS_KM}km from you
-
-${notes ? `📝 Additional Notes: ${notes}` : ''}
-
-🔗 Respond to this request: ${process.env.FRONTEND_URL || 'http://localhost:5173'}/donor/requests
-
-⏰ Time is critical - please respond as soon as possible if you're available to donate.
-
-Your donation can save lives! 
-
-Thank you for being a lifesaver.
-
-Best regards,
-BloodBridge Team`;
+      // Generate HTML email using template
+      const htmlContent = bloodRequestTemplate({
+        donorName: donor.name,
+        bloodGroup: bloodGroup,
+        units: units,
+        urgency: urgency,
+        hospitalName: hospital.name,
+        distance: donorDistance,
+        notes: notes || null,
+        requestUrl: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/donor/requests`,
+        isDisaster: disaster.isEnabled()
+      });
 
       try {
         await sendNotification(
           donor.email,
           subject,
-          emailContent
+          `Blood request from ${hospital.name}`,
+          htmlContent,
+          'general'
         );
         emailsSent++;
         console.log(`📧 Email sent to: ${donor.email}`);
@@ -563,24 +602,19 @@ exports.cancelDonor = async (req, res) => {
 
     // Send email notification to donor
     try {
+      const htmlContent = donationCancelledTemplate({
+        donorName: donor.name,
+        bloodGroup: request.bloodGroup,
+        units: request.units,
+        hospitalName: request.hospital.name
+      });
+
       await sendEmail(
         donor.email,
         "Blood Donation Request Cancelled - BloodBridge",
-        `Hello ${donor.name},
-
-We regret to inform you that the blood donation request you accepted has been cancelled by ${request.hospital.name}.
-
-Request Details:
-- Blood Group: ${request.bloodGroup}
-- Units: ${request.units}
-- Hospital: ${request.hospital.name}
-
-The hospital may have found another donor or the requirement has been fulfilled. We appreciate your willingness to donate and encourage you to respond to other requests.
-
-Thank you for being a part of BloodBridge and helping save lives!
-
-Best regards,
-BloodBridge Team`
+        `Your accepted blood donation request has been cancelled by ${request.hospital.name}`,
+        htmlContent,
+        'general'
       );
       console.log('✅ Cancellation email sent to donor');
     } catch (emailError) {
@@ -761,24 +795,17 @@ exports.contactSupport = async (req, res) => {
       });
     }
 
-    // Send email to admin
+    // Generate HTML email using template
+    const htmlContent = supportRequestTemplate({
+      adminName: nearestAdmin.name,
+      hospitalName: hospital.name,
+      hospitalEmail: hospital.email,
+      hospitalPhone: hospital.phone || null,
+      distance: minDistance !== Infinity ? minDistance.toFixed(1) : null,
+      message: message
+    });
+
     const emailSubject = `🏥 Support Request from ${hospital.name}`;
-    const emailContent = `Hello ${nearestAdmin.name},
-
-You have received a support request from a hospital:
-
-🏥 Hospital: ${hospital.name}
-📧 Email: ${hospital.email}
-📞 Phone: ${hospital.phone || 'Not provided'}
-${minDistance !== Infinity ? `📍 Distance: ${minDistance.toFixed(2)} km` : ''}
-
-📝 Message:
-${message}
-
-Please respond to this hospital as soon as possible.
-
-Best regards,
-BloodBridge System`;
 
     // TEST MODE: Log to console instead of sending email
     const TEST_MODE = process.env.SUPPORT_TEST_MODE === 'true' || true; // Set to true for testing
@@ -791,15 +818,16 @@ BloodBridge System`;
       console.log('Admin Name:', nearestAdmin.name);
       console.log('Subject:', emailSubject);
       console.log('-'.repeat(80));
-      console.log('Content:');
-      console.log(emailContent);
+      console.log('HTML Content Generated: Yes');
       console.log('='.repeat(80) + '\n');
     } else {
       // Production mode: Actually send the email
       await sendNotification(
         nearestAdmin.email,
         emailSubject,
-        emailContent
+        `Support request from ${hospital.name}`,
+        htmlContent,
+        'general'
       );
     }
 

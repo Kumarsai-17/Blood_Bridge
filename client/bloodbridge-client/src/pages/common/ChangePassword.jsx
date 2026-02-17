@@ -56,11 +56,15 @@ const ChangePassword = () => {
         title: 'Success', 
         message: 'Password changed successfully',
         onClose: () => {
-          if (user?.mustChangePassword) {
-            navigate(`/${user.role}/dashboard`)
-          } else {
-            navigate(-1)
+          // Redirect to dashboard based on role
+          const dashboardPaths = {
+            donor: '/donor/dashboard',
+            hospital: '/hospital/dashboard',
+            bloodbank: '/bloodbank/dashboard',
+            admin: '/admin/dashboard',
+            super_admin: '/admin/dashboard'
           }
+          navigate(dashboardPaths[user?.role] || '/')
         }
       })
     } catch (error) {

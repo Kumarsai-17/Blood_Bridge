@@ -293,7 +293,7 @@ const Home = () => {
           </div>
           <div className="mt-6 sm:mt-8 border-t border-gray-700 pt-6 sm:pt-8">
             <p className="text-xs sm:text-sm text-gray-400 text-center px-4">
-              &copy; 2024 BloodBridge. Connecting donors with those in need.
+              &copy; 2026 BloodBridge. Connecting donors with those in need.
             </p>
           </div>
         </div>

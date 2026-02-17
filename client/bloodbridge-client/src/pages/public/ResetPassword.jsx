@@ -114,6 +114,8 @@ const ResetPassword = () => {
                 id="otp"
                 name="otp"
                 type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 required
                 value={formData.otp}
                 onChange={handleChange}

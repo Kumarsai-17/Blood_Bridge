@@ -147,6 +147,8 @@ const VerifyEmail = () => {
               </label>
               <Input
                 type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 placeholder="000000"
                 value={otp}
                 onChange={(e) => {

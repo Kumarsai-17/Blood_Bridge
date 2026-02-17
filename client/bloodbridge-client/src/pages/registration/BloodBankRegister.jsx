@@ -402,7 +402,7 @@ const BloodBankRegister = () => {
       </CardContent>
       <CardFooter className="flex justify-center bg-slate-50/50 border-t border-slate-100 p-6">
         <div className="text-xs text-slate-500 font-medium">
-          Already a reserve? <Link to="/login" className="text-rose-600 font-bold hover:underline">Access Command Center</Link>
+          Already a reserve? <Link to="/login" className="text-rose-600 font-bold hover:underline">Login</Link>
         </div>
       </CardFooter>
     </Card>

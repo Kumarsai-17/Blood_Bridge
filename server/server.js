@@ -53,7 +53,7 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:5173", 
   "http://localhost:5174",
-  "https://blood-bridge-mu.vercel.app",
+  "https://blood-bridge-mu.vercel.app/api",
   process.env.FRONTEND_URL
 ].filter(Boolean); // Remove undefined values
 

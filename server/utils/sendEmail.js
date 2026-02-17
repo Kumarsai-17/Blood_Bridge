@@ -1,5 +1,4 @@
 const nodemailer = require("nodemailer");
-const { Resend } = require('resend');
 
 // Gmail SMTP transporter
 const createGmailTransporter = () => {
@@ -22,29 +21,46 @@ module.exports = async (to, subject, text, html = null) => {
     console.log('🔍 Email Config Check:', {
       hasResend: !!process.env.RESEND_API_KEY,
       hasGmail: !!(process.env.SYSTEM_EMAIL && process.env.SYSTEM_EMAIL_PASS),
-      recipient: to
+      recipient: to,
+      resendFrom: process.env.RESEND_FROM_EMAIL
     });
 
     // Priority 1: Resend (works on all platforms, 100 emails/day free)
     if (process.env.RESEND_API_KEY) {
-      console.log('📧 Sending via Resend');
-      const resend = new Resend(process.env.RESEND_API_KEY);
+      console.log('📧 Attempting to send via Resend...');
       
-      const result = await resend.emails.send({
-        from: process.env.RESEND_FROM_EMAIL || 'BloodBridge <onboarding@resend.dev>',
-        to: to,
-        subject: subject,
-        text: text,
-        html: html || `<pre>${text}</pre>`
-      });
-      
-      console.log('✅ Email sent via Resend:', result);
-      return { success: true, messageId: result.id };
+      try {
+        const { Resend } = require('resend');
+        const resend = new Resend(process.env.RESEND_API_KEY);
+        
+        const emailData = {
+          from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
+          to: [to],
+          subject: subject,
+          text: text,
+          html: html || `<pre style="font-family: monospace; white-space: pre-wrap;">${text}</pre>`
+        };
+        
+        console.log('📧 Sending email with data:', {
+          from: emailData.from,
+          to: emailData.to,
+          subject: emailData.subject
+        });
+        
+        const result = await resend.emails.send(emailData);
+        
+        console.log('✅ Email sent via Resend successfully:', result);
+        return { success: true, messageId: result.id || result.data?.id };
+      } catch (resendError) {
+        console.error('❌ Resend failed:', resendError.message);
+        console.error('Resend error details:', resendError);
+        // Fall through to Gmail if Resend fails
+      }
     }
 
     // Priority 2: Gmail SMTP (works locally only)
     if (process.env.SYSTEM_EMAIL && process.env.SYSTEM_EMAIL_PASS) {
-      console.log('📧 Sending via Gmail SMTP');
+      console.log('📧 Sending via Gmail SMTP (fallback)');
       
       const transporter = createGmailTransporter();
       const mailOptions = {
@@ -60,10 +76,10 @@ module.exports = async (to, subject, text, html = null) => {
       return { success: true, messageId: result.messageId };
     }
 
-    throw new Error("No email service configured");
+    throw new Error("No email service configured or all services failed");
 
   } catch (error) {
-    console.error("SEND EMAIL ERROR:", error.message);
+    console.error("❌ SEND EMAIL ERROR:", error.message);
     console.error("Full error:", error);
     return { success: false, error: error.message };
   }

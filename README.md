@@ -37,85 +37,20 @@ A comprehensive blood donation management system connecting donors, hospitals, a
 ## 🚀 Tech Stack
 
 ### Frontend
-- React 18
-- React Router v6
-- Tailwind CSS
-- Axios
-- Lucide React Icons
-- React Hot Toast
-
+- HTML
+- CSS
+- React
+  
 ### Backend
 - Node.js
 - Express.js
 - MongoDB with Mongoose
-- JWT Authentication
-- Bcrypt for password hashing
-- Nodemailer for email notifications
-- Node-cron for scheduled tasks
 
 ## 📋 Prerequisites
 
 - Node.js (v14 or higher)
 - MongoDB (local or Atlas)
 - Gmail account for email notifications
-
-## 🛠️ Installation
-
-### 1. Clone the repository
-```bash
-git clone https://github.com/Kumarsai-17/Blood_Bridge.git
-cd Blood_Bridge
-```
-
-### 2. Setup Backend
-```bash
-cd server
-npm install
-```
-
-Create a `.env` file in the server directory:
-```env
-PORT=5001
-MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret_key
-EMAIL_USER=your_gmail@gmail.com
-EMAIL_PASS=your_gmail_app_password
-```
-
-### 3. Setup Frontend
-```bash
-cd ../client/bloodbridge-client
-npm install
-```
-
-## 🏃‍♂️ Running the Application
-
-### Start Backend Server
-```bash
-cd server
-npm start
-# or for development with auto-reload
-npm run dev
-```
-
-### Start Frontend
-```bash
-cd client/bloodbridge-client
-npm run dev
-```
-
-The application will be available at:
-- Frontend: http://localhost:5173
-- Backend: http://localhost:5001
-
-## 👤 Default Admin Credentials
-
-```
-Email: superadmin@bloodbridge.com
-Password: SuperAdmin@123
-```
-
-**Note:** You will be required to change the password on first login.
 
 ## 🔐 User Roles
 

@@ -39,7 +39,7 @@ A comprehensive blood donation management system connecting donors, hospitals, a
 ### Frontend
 - HTML
 - CSS
-- React
+- React.js
   
 ### Backend
 - Node.js
